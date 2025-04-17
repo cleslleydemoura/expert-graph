@@ -1,0 +1,14 @@
+.terminal-container {
+    display: flex;
+    height: 170px;
+    border-radius: 0 0 1rem 1rem;
+    box-sizing: border-box;
+    position: relative;
+    padding: 2rem;
+    background-color: white;
+    box-shadow: 0 4px 16px #00000033;
+    z-index: 2;
+    justify-content: left;
+    align-items: center;
+    overflow: hidden;
+  }

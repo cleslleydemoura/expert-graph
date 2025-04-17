@@ -1,0 +1,63 @@
+/*      Estes itens estão dentro de uma div maior .section       */
+
+/*          GRAPH CONTAINER          */
+
+.graph-container {
+  display: flex;
+  gap: 2rem;
+  height: 500px;
+  box-sizing: border-box;
+  position: relative;
+  padding: 2rem;
+  background-color: white;
+  box-shadow: 0 4px 16px #00000033;
+  border-radius: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.graph-container .grafo {
+  height: 100%;
+  flex: 8;
+  background-color: #eaeaea;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px #00000033;
+  box-sizing: border-box;
+  position: relative;
+  padding: 2rem;
+}
+
+#mynetwork {
+  width: 100%;
+  height: 100%;
+  border: #333;
+}
+
+/*      STATS CONTAINER       */
+
+.graph-container .stats {
+  height: 100%;
+  flex: 2;
+  background-color: #eaeaea;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px #00000033;
+  box-sizing: border-box;
+  position: relative;
+  padding: 2rem;
+}
+
+.graph-container .stats p {
+  font-weight: bold;
+}
+
+
+#stats table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#stats th, #stats td {
+  border: 1px solid #999;
+  padding: 8px;
+  text-align: center;
+}

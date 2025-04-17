@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- CHAMADA DAS PÁGINAS CSS -->
+    <link rel="stylesheet" href="style/body-style.css">
+    <link rel="stylesheet" href="style/items-bar-style.css">
+    <link rel="stylesheet" href="style/graph-container-style.css">
+    <link rel="stylesheet" href="style/main-section-style.css">
+    <link rel="stylesheet" href="style/terminal-style.css">
+    <title>Graph-App</title>
+    <!-- CHAMADA DO VIS.JS -->
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
+    ></script>
+  </head>
+  <body>
+    <!-- MAIN SECTION -->
+    <main class="section">
+      <!-- ITEMS-BAR -->
+      <div class="items-container">
+        <div class="menu-item"><img src="src/items-bar-icons/circle-svgrepo-com.svg" alt="Círculo-Vértice"><span class="tooltip">Vértice</span></div>
+        <div class="menu-item"><img src="src/items-bar-icons/line-svgrepo-com.svg" alt="Linha-Aresta"><span class="tooltip">Aresta</span></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+        <div class="menu-item"></div>
+      </div>
+      <!-- GRAPH CONTAINER -->
+      <div class="graph-container">
+        <div class="grafo" id="mynetwork"></div>
+        <div class="stats" id="stats">
+          <!-- <p>DISTÂNCIA MAIS CURTA: </p> -->
+          <!-- <p>DISTÂNCIA MAIS LONGA: </p> -->
+        </div>
+      </div>
+      <!-- TERMINAL CONTAINER -->
+      <div class="terminal-container"></div>
+    </main>
+  </body>
+  <!-- CHAMADA DAS PÁGINAS JS -->
+  <script src="script/selected-item.js"></script>
+  <script src="script/graph.js"></script>
+  <script src="script/stats.js"></script>
+</html>

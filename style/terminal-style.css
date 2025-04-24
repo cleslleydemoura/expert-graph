@@ -1,14 +1,54 @@
+/* Estilo do container do terminal */
 .terminal-container {
-    display: flex;
-    height: 170px;
-    border-radius: 0 0 1rem 1rem;
-    box-sizing: border-box;
-    position: relative;
-    padding: 2rem;
-    background-color: white;
-    box-shadow: 0 4px 16px #00000033;
-    z-index: 2;
-    justify-content: left;
-    align-items: center;
-    overflow: hidden;
-  }
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  padding: 2rem;
+  background-color: white;
+  box-shadow: 0 4px 16px #00000033;
+  border-radius: 1rem;
+}
+
+/* Estilo do container da matriz */
+#matrizContainer {
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+/* Estilo da tabela */
+#matrizContainer table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 100%;
+  margin-top: 10px;
+}
+
+#matrizContainer th,
+#matrizContainer td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+}
+
+#matrizContainer input {
+  width: 40px;
+  text-align: center;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Estilo para os botões */
+.matriz-wrapper button {
+  padding: 8px 16px;
+  background-color: #007acc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.matriz-wrapper button:hover {
+  background-color: #005fa3;
+}

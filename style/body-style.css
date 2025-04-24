@@ -9,7 +9,7 @@ body {
   background-size: 200% 200%;
   animation: gradient-animation 5s ease infinite;
   height: 100vh;
-  overflow: hidden;
+  /* overflow: hidden; */
   position: relative;
 }
 

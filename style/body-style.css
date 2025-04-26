@@ -5,7 +5,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Work Sans", sans-serif;
-  background: linear-gradient(115deg, #668284, #6e7d7e, #493736, #7b3b3b);
+  /* background: linear-gradient(115deg, #668284, #6e7d7e, #493736, #7b3b3b); */
   background-size: 200% 200%;
   animation: gradient-animation 5s ease infinite;
   height: 100vh;

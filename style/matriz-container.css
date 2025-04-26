@@ -1,0 +1,29 @@
+/* Estilo do container da matriz */
+#matrizContainer {
+    overflow-x: auto;
+    margin-top: 10px;
+  }
+  
+  /* Estilo da tabela */
+  #matrizContainer table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 100%;
+    margin-top: 10px;
+  }
+  
+  #matrizContainer th,
+  #matrizContainer td {
+    border: 1px solid #ccc;
+    padding: 5px;
+    text-align: center;
+  }
+  
+  #matrizContainer input[type="number"] {
+    width: 40px;
+    text-align: center;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    font-size: 14px;
+  }
+  

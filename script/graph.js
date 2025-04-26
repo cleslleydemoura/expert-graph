@@ -65,21 +65,23 @@ network.on("click", function (params) {
     document.querySelectorAll(".menu-item").forEach((item) => {
       item.addEventListener("click", () => {
         const isSelected = item.classList.contains("selected");
-    
+
         if (!isSelected) {
-          document.querySelectorAll(".menu-item").forEach((i) => i.classList.remove("selected"));
+          document
+            .querySelectorAll(".menu-item")
+            .forEach((i) => i.classList.remove("selected"));
           item.classList.add("selected");
-    
+
           const tooltip = item.querySelector(".tooltip");
           ferramentaSelecionada = tooltip ? tooltip.textContent.trim() : null;
         } else {
           item.classList.remove("selected");
         }
-    
+
         // Aqui, a ferramenta é ativada automaticamente ao ser selecionada
         console.log(ferramentaSelecionada); // Para verificar o valor de ferramentaSelecionada
       });
-    });    
+    });
     // console.log("Testeeee",options)
     // console.log("Testeeee",container)
   }
@@ -98,26 +100,26 @@ network.on("selectNode", function (params) {
       arestaSelecion = [];
       // Limpa a seleção visual
       document
-      .querySelectorAll(".menu-item")
-      .forEach((i) => i.classList.remove("selected"));
+        .querySelectorAll(".menu-item")
+        .forEach((i) => i.classList.remove("selected"));
       ferramentaSelecionada = null;
-      const positions = network.getPositions()
-      console.log("Teste",positions);
-      for (const e in positions){
-        console.log(`Node ${e}:`,network.getConnectedNodes(e))
-        const teste = network.getConnectedNodes(e)
+      const positions = network.getPositions();
+      console.log("Teste", positions);
+      for (const e in positions) {
+        console.log(`Node ${e}:`, network.getConnectedNodes(e));
+        const teste = network.getConnectedNodes(e);
         let ValorMaisPerto;
         teste.map((e) => {
-          console.log("Position:",network.getPosition(e))
-          if(ValorMaisPerto == undefined){
-            ValorMaisPerto = network.getPosition(e)
-            console.log(ValorMaisPerto,"teste")
+          console.log("Position:", network.getPosition(e));
+          if (ValorMaisPerto == undefined) {
+            ValorMaisPerto = network.getPosition(e);
+            console.log(ValorMaisPerto, "teste");
           }
-          if (e.x < ValorMaisPerto){
-            ValorMaisPerto = network.getPosition(e)
-            console.log(e, "mais perto")
+          if (e.x < ValorMaisPerto) {
+            ValorMaisPerto = network.getPosition(e);
+            console.log(e, "mais perto");
           }
-        })
+        });
         // const valorAtual = {x:20 ,y:120}
         // const ValorLonge = {x:20, y:120}
         // const ValorPerto = {x:20, y:120}

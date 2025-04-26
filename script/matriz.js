@@ -1,3 +1,4 @@
+// Construção
 const terminal = document.querySelector(".terminal-container");
 
 const inputQtd = document.createElement("input");
@@ -6,14 +7,14 @@ inputQtd.placeholder = "Qtd. de vértices";
 inputQtd.id = "numVertices";
 
 const btnGerar = document.createElement("button");
-btnGerar.innerText = "Gerar Matriz";
+btnGerar.innerText = "GERAR MATRIZ";
 
 const matrizDiv = document.createElement("div");
 matrizDiv.id = "matrizContainer";
-matrizDiv.style.marginTop = "10px";
 
 const btnCriarGrafo = document.createElement("button");
-btnCriarGrafo.innerText = "Criar Grafo";
+btnCriarGrafo.innerText = "CRIAR GRAFO";
+btnCriarGrafo.style.display = "none"; // Escondido inicialmente
 
 terminal.appendChild(inputQtd);
 terminal.appendChild(btnGerar);
@@ -22,13 +23,18 @@ terminal.appendChild(btnCriarGrafo);
 
 btnGerar.onclick = () => {
     const n = parseInt(inputQtd.value);
-    matrizDiv.innerHTML = ""; 
+
+    if (isNaN(n) || n <= 0) {
+        alert("Por favor, insira um número válido de vértices.");
+        return;
+    }
+
+    matrizDiv.innerHTML = "";
 
     const table = document.createElement("table");
 
-
     const headerRow = document.createElement("tr");
-    headerRow.appendChild(document.createElement("th")); 
+    headerRow.appendChild(document.createElement("th"));
     for (let i = 0; i < n; i++) {
         const th = document.createElement("th");
         th.innerText = `V${i}`;
@@ -36,10 +42,8 @@ btnGerar.onclick = () => {
     }
     table.appendChild(headerRow);
 
-
     for (let i = 0; i < n; i++) {
         const row = document.createElement("tr");
-
 
         const th = document.createElement("th");
         th.innerText = `V${i}`;
@@ -50,7 +54,6 @@ btnGerar.onclick = () => {
             const input = document.createElement("input");
             input.type = "number";
             input.value = "0";
-            input.style.width = "40px";
             input.dataset.i = i;
             input.dataset.j = j;
             cell.appendChild(input);
@@ -60,6 +63,8 @@ btnGerar.onclick = () => {
     }
 
     matrizDiv.appendChild(table);
+
+    btnCriarGrafo.style.display = "inline-block";
 };
 
 btnCriarGrafo.onclick = () => {
@@ -73,25 +78,71 @@ btnCriarGrafo.onclick = () => {
         matriz[i][j] = parseInt(input.value);
     });
 
-
     const nodes = new vis.DataSet();
     const edges = new vis.DataSet();
 
     for (let i = 0; i < n; i++) {
-        nodes.add({ id: i, label: `V${i}` });
+        nodes.add({
+            id: i,
+            label: `V${i}`,
+            shape: "dot",
+            size: 25,
+            color: {
+                background: "#6e7d7e",
+                border: "#333",
+                highlight: {
+                    background: "#6e7d7e",
+                    border: "#333",
+                },
+                hover: {
+                    background: "#6e7d7e",
+                    border: "#333",
+                },
+            },
+            font: {
+                color: "#333",
+                face: "Work Sans",
+                size: 16,
+                bold: {
+                    color: "#000",
+                    size: 18,
+                },
+            },
+        });
     }
 
     for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
             if (matriz[i][j] > 0) {
-                edges.add({ from: i, to: j, label: matriz[i][j].toString() });
+                edges.add({ 
+                    from: i, 
+                    to: j, 
+                    // label: matriz[i][j].toString(), <-- numera as arestas
+                    font: { align: "top" }
+                });
             }
         }
     }
 
     const container = document.getElementById("mynetwork");
     const data = { nodes, edges };
-    const options = { physics: false };
+    const options = {
+        physics: false,
+        nodes: {
+            font: {
+                face: "Work Sans",
+                color: "#333",
+            },
+        },
+        edges: {
+            smooth: {
+                type: "dynamic",
+            },
+            font: {
+                align: "middle",
+            },
+        },
+    };
 
     const network = new vis.Network(container, data, options);
 };

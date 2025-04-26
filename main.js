@@ -7,7 +7,7 @@ const createWindow = () => {
     icon: path.join(__dirname, "src", "graph-app-icon", "/favicon.ico"),
     width: 2000,
     height: 1100,
-    resizable: false
+    resizable: true
   })
 
   win.loadFile('index.html')

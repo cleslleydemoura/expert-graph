@@ -5,11 +5,9 @@
 .items-container {
   display: flex;
   height: 90px;
-  border-radius: 1rem 1rem 0 0;
   box-sizing: border-box;
   position: relative;
   padding: 2rem;
-  margin-top: 2px;
   background-color: white;
   box-shadow: 0 4px 16px #00000033;
   z-index: 2;

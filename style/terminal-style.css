@@ -1,15 +1,20 @@
-/* Estilo do container do terminal */
+/*      Estes itens estão dentro de uma div maior .section       */
+/*          TERMINAL CONTAINER          */
+
 .terminal-container {
   display: flex;
   flex-direction: column;
-  height: auto;
+  height: calc(100vh - 100px);
+  min-height: 300px;
   padding: 2rem;
   background-color: white;
   box-shadow: 0 4px 16px #00000033;
-  gap: 1rem; /* espaço entre os elementos */
+  gap: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
-/* Estilo do input de número */
 .terminal-container input[type="number"] {
   width: 120px;
   padding: 8px;
@@ -18,7 +23,6 @@
   font-size: 14px;
 }
 
-/* Estilo dos botões dentro do terminal */
 .terminal-container button {
   padding: 8px 16px;
   background-color: #303332;

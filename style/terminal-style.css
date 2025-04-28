@@ -4,8 +4,8 @@
 .terminal-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 100px);
-  min-height: 300px;
+  height: calc(30vh - 100px);
+  min-height: 162px;
   padding: 2rem;
   background-color: white;
   box-shadow: 0 4px 16px #00000033;
@@ -13,6 +13,7 @@
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
+  max-height: auto;
 }
 
 .terminal-container input[type="number"] {

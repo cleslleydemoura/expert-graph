@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ferramentaSelecionada = null;
       }
 
-      // Aqui você pode adicionar a lógica para utilizar a ferramenta no grafo
       console.log(ferramentaSelecionada);
     });
   });

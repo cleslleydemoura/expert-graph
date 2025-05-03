@@ -1,5 +1,3 @@
-let ferramentaSelecionada = null;
-
 document.addEventListener('DOMContentLoaded', () => {
   const menuItems = document.querySelectorAll('.menu-item');
 
@@ -25,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ferramentaSelecionada = null;
       }
 
-      // Aqui você pode adicionar a lógica para utilizar a ferramenta no grafo
       console.log(ferramentaSelecionada);
     });
   });

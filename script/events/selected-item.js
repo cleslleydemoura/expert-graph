@@ -1,5 +1,3 @@
-let ferramentaSelecionada = null;
-
 document.addEventListener('DOMContentLoaded', () => {
   const menuItems = document.querySelectorAll('.menu-item');
 

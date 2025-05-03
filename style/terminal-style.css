@@ -1,54 +1,40 @@
-/* Estilo do container do terminal */
+/*      Estes itens estão dentro de uma div maior .section       */
+/*          TERMINAL CONTAINER          */
+
 .terminal-container {
   display: flex;
   flex-direction: column;
-  height: auto;
+  height: calc(30vh - 100px);
+  min-height: 162px;
   padding: 2rem;
   background-color: white;
   box-shadow: 0 4px 16px #00000033;
-  border-radius: 1rem;
-}
-
-/* Estilo do container da matriz */
-#matrizContainer {
-  overflow-x: auto;
-  margin-top: 10px;
-}
-
-/* Estilo da tabela */
-#matrizContainer table {
-  border-collapse: collapse;
+  gap: 1rem;
+  box-sizing: border-box;
   width: 100%;
-  min-width: 100%;
-  margin-top: 10px;
+  max-width: 100%;
+  max-height: auto;
 }
 
-#matrizContainer th,
-#matrizContainer td {
-  border: 1px solid #ccc;
-  padding: 5px;
-  text-align: center;
-}
-
-#matrizContainer input {
-  width: 40px;
-  text-align: center;
+.terminal-container input[type="number"] {
+  width: 120px;
+  padding: 8px;
   border: 1px solid #aaa;
-  border-radius: 3px;
+  border-radius: 4px;
   font-size: 14px;
 }
 
-/* Estilo para os botões */
-.matriz-wrapper button {
+.terminal-container button {
   padding: 8px 16px;
-  background-color: #007acc;
+  background-color: #303332;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: bold;
   transition: background-color 0.3s ease;
 }
 
-.matriz-wrapper button:hover {
-  background-color: #005fa3;
+.terminal-container button:hover {
+  background-color: #c0c0c0;
 }

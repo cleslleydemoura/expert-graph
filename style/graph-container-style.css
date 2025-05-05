@@ -11,7 +11,6 @@
   position: relative;
   padding: 2rem;
   background-color: white;
-  box-shadow: 0 4px 16px #00000033;
   border-radius: 0;
   width: 100%;
   max-width: 100%;
@@ -43,16 +42,23 @@
 .graph-container .stats {
   height: 100%;
   flex: 2;
+  overflow-y: auto;
   background-color: #eaeaea;
   border-radius: 1rem;
   box-shadow: 0 4px 8px #00000033;
   box-sizing: border-box;
   position: relative;
-  padding: 2rem;
+  padding: 1.5rem;
+  font-size: clamp(0.7rem, 1vw, 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .graph-container .stats p {
-  font-weight: bold;
+  margin: 2px 0;
+  word-break: break-word;
+  line-height: 1.4;
 }
 
 #stats table {
@@ -71,11 +77,15 @@
 #matrizOutputContainer {
   flex: 1 1 100%;
   width: 100%;
+  margin-top: 1rem;
+  overflow-x: auto;
+  position: relative; /* 🔧 Certifique-se de que NÃO esteja em 'absolute' */
+  z-index: 0;          /* 🔧 Evita que fique sobreposto */
 }
+
 
 /* Estiliza o botão Exibir Matriz */
 .graph-container button {
-  margin-top: 1rem;
   padding: 0.5rem 1rem;
   background-color: #0e3a72;
   color: white;
@@ -99,6 +109,15 @@
   padding: 6px;
   text-align: center;
 }
+.matriz-gerada {
+  flex: 1 1 100%;
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 
 #matrizOutputContainer input {
   width: 40px;

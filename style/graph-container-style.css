@@ -43,16 +43,23 @@
 .graph-container .stats {
   height: 100%;
   flex: 2;
+  overflow-y: auto;
   background-color: #eaeaea;
   border-radius: 1rem;
   box-shadow: 0 4px 8px #00000033;
   box-sizing: border-box;
   position: relative;
-  padding: 2rem;
+  padding: 1.5rem;
+  font-size: clamp(0.7rem, 1vw, 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .graph-container .stats p {
-  font-weight: bold;
+  margin: 2px 0;
+  word-break: break-word;
+  line-height: 1.4;
 }
 
 #stats table {

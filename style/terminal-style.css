@@ -4,7 +4,7 @@
 .terminal-container {
   display: flex;
   flex-direction: column;
-  height: calc(30vh - 100px);
+  height: calc(40vh - 100px);
   min-height: 162px;
   padding: 2rem;
   background-color: white;

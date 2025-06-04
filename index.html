@@ -3,23 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- CHAMADA DAS PÁGINAS CSS -->
     <link rel="stylesheet" href="style/body-style.css">
     <link rel="stylesheet" href="style/items-bar-style.css">
     <link rel="stylesheet" href="style/graph-container-style.css">
     <link rel="stylesheet" href="style/main-section-style.css">
     <link rel="stylesheet" href="style/terminal-style.css">
+    <link rel="stylesheet" href="style/rename-style.css">
     <title>Graph-App</title>
-    <!-- CHAMADA DO VIS.JS -->
     <script
       type="text/javascript"
       src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
     ></script>
   </head>
   <body>
-    <!-- MAIN SECTION -->
     <main class="section">
-      <!-- ITEMS-BAR -->
       <div class="items-container">
         <div class="menu-item"><img src="src/items-bar-icons/circle-svgrepo-com.svg" alt="Círculo-Vértice"><span class="tooltip">Vértice</span></div>
         <div class="menu-item"><img src="src/items-bar-icons/line-svgrepo-com.svg" alt="Linha-Aresta"><span class="tooltip">Aresta</span></div>
@@ -32,11 +29,13 @@
           <span class="tooltip">Excluir Aresta</span>
         </div>
         <div class="menu-item">
+          <img src="src/items-bar-icons/rename.svg" alt="Renomear"> <span class="tooltip">Renomear</span>
+        </div>
+        <div class="menu-item">
           <img src="src/items-bar-icons/clear-graph.svg" alt="Limpar Grafo">
           <span class="tooltip">Limpar Grafo</span>
         </div>
       </div>
-      <!-- GRAPH CONTAINER -->
       <div class="graph-container">
         <div class="grafo" id="mynetwork"></div>
         <div class="stats" id="stats">
@@ -50,14 +49,24 @@
           <div id="rota-longa"></div>
         </div>
       </div>
-      <!-- TERMINAL CONTAINER -->
       <div class="terminal-container"></div>
     </main>
+
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Renomear Item</h2>
+        <label for="editInput">Novo Nome/Valor:</label>
+        <input type="text" id="editInput" />
+        <button id="confirmEditBtn">Salvar</button>
+      </div>
+    </div>
+
   </body>
-  <!-- CHAMADA DAS PÁGINAS JS -->
   <script src="script/events/selected-item.js"></script>
   <script src="script/events/nodes-functions.js"></script>
   <script src="script/graph.js"></script>
+  <script src="script/graph-ordenado.js"></script>
   <script src="script/stats.js"></script>
   <script src="script/matriz.js"></script>
 </html>

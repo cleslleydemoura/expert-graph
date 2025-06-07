@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // === GLOBAIS ===
 let vis = window.vis;
 let nodes = new vis.DataSet([]);
@@ -196,7 +197,7 @@ function configurarEventosDoGrafo() {
     });
 
     // Eventos de desseleção para limpar o estado de edição se o usuário mudar de seleção
-    network.on("deselectNode", (params) => {
+    network.on("deselectNode", () => {
         // Se a ferramenta "Renomear" NÃO estiver ativa, ou se o modal já está fechado,
         // não precisamos fazer nada aqui. A lógica principal de fechar o modal
         // está no click no fundo ou no botão/enter.
@@ -205,7 +206,7 @@ function configurarEventosDoGrafo() {
             itemBeingEdited = null;
         }
     });
-    network.on("deselectEdge", (params) => {
+    network.on("deselectEdge", () => {
         if (ferramentaSelecionada !== "Renomear" && editModal.style.display === "flex") {
             editModal.style.display = "none";
             itemBeingEdited = null;
@@ -421,8 +422,8 @@ function calcularRotas(origemId) {
     const visitados = new Set([origemId]);
     const distancias = { [origemId]: 0 };
 
-    let maxDist = 0;
-    let minDist = Infinity;
+    // let maxDist = 0;
+    // let minDist = Infinity;
 
     while (fila.length > 0) {
         const atual = fila.shift();

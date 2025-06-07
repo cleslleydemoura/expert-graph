@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style/body-style.css">
+    <link rel="stylesheet" href="style/items-bar-style.css">
+    <link rel="stylesheet" href="style/graph-container-style.css">
+    <link rel="stylesheet" href="style/main-section-style.css">
+    <link rel="stylesheet" href="style/terminal-style.css">
+    <link rel="stylesheet" href="style/rename-style.css">
+    <title>Graph-App</title>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
+    ></script>
+  </head>
+  <body>
+    <main class="section">
+      <div class="items-container">
+        <div class="grafo-ordenado">
+          <a href="index.html"><button>GRAFO NÃO ORDENADO</button></a>
+        </div>
+        <div class="menu-item"><img src="src/items-bar-icons/circle-svgrepo-com.svg" alt="Círculo-Vértice"><span class="tooltip">Vértice</span></div>
+        <div class="menu-item"><img src="src/items-bar-icons/line-svgrepo-com.svg" alt="Linha-Aresta"><span class="tooltip">Aresta</span></div>
+        <div class="menu-item">
+          <img src="src/items-bar-icons/remove-vertice.svg" alt="Excluir Nó">
+          <span class="tooltip">Excluir Nó</span>
+        </div>
+        <div class="menu-item">
+          <img src="src/items-bar-icons/remove-aresta.svg" alt="Excluir Aresta">
+          <span class="tooltip">Excluir Aresta</span>
+        </div>
+        <div class="menu-item">
+          <img src="src/items-bar-icons/rename.svg" alt="Renomear"> <span class="tooltip">Renomear</span>
+        </div>
+        <div class="menu-item">
+          <img src="src/items-bar-icons/clear-graph.svg" alt="Limpar Grafo">
+          <span class="tooltip">Limpar Grafo</span>
+        </div>
+      </div>
+      <div class="graph-container">
+        <div class="grafo" id="mynetwork"></div>
+        <div class="stats" id="stats">
+          <p>ROTAS POSSÍVEIS:</p>
+          <div id="rotas-possiveis"></div>
+
+          <p>ROTAS MAIS CURTAS:</p>
+          <div id="rota-curta"></div>
+
+          <p>ROTAS MAIS LONGAS:</p>
+          <div id="rota-longa"></div>
+        </div>
+      </div>
+      <div class="terminal-container"></div>
+    </main>
+
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Renomear Item</h2>
+        <label for="editInput">Novo Nome/Valor:</label>
+        <input type="text" id="editInput" />
+        <button id="confirmEditBtn">Salvar</button>
+      </div>
+    </div>
+
+  </body>
+  <script src="script/events/selected-item.js"></script>
+  <script src="script/events/nodes-functions.js"></script>
+  <script src="script/graph.js"></script>
+  <script src="script/graph-ordenado.js"></script>
+  <script src="script/stats.js"></script>
+  <script src="script/matriz.js"></script>
+</html>

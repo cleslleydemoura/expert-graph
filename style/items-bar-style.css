@@ -73,3 +73,31 @@
   visibility: visible;
   opacity: 1;
 }
+
+.grafo-ordenado a {
+  text-decoration: none;
+}
+
+.grafo-ordenado button{
+  width: 120px;
+  height: 60px;
+  margin: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  margin-right: 50px;
+  background-color: #303332;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px #00000033;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  position: relative; /* posiciona o tooltip */
+}
+
+.grafo-ordenado button:hover {
+  transition: all 300ms;
+  background-color: #72bfa2;
+  color: #333;
+}

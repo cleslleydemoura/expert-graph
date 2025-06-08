@@ -164,3 +164,32 @@
   border: 1px solid #ccc;
   padding: 6px
 }
+
+.txt-converter-div {
+  display: flex;
+  justify-content: center;
+  width: 15%;
+  box-sizing: border-box;
+}
+
+/* O estilo do seu botão pode continuar exatamente o mesmo */
+.txt-converter-div button {
+  width: 160px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background-color: #303332;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px #00000033;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Efeito ao passar o mouse (hover) */
+#txt-converter:hover {
+  background-color: #104c9b; /* Tom mais claro para feedback visual */
+}

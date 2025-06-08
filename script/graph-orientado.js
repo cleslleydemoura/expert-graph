@@ -7,6 +7,7 @@ let network;
 let proximoNoId = 0;
 let arestaSelecion = [];
 let itemBeingEdited = null;
+let ferramentaSelecionada = null; // Adicionado para referência
 
 // === INICIALIZA GRAFO ===
 window.addEventListener("DOMContentLoaded", () => {
@@ -57,33 +58,56 @@ window.addEventListener("DOMContentLoaded", () => {
         console.error("Elementos do modal de edição não encontrados no HTML!");
     }
 
+    // <<< ALTERAÇÃO INSERIDA AQUI: Adicionado evento de clique para o botão de download >>>
+    const btnBaixarMatriz = document.getElementById("txt-converter");
+    if (btnBaixarMatriz) {
+        btnBaixarMatriz.onclick = baixarMatrizTxt;
+    }
+    // <<< FIM DA ALTERAÇÃO >>>
+
     configurarEventosDoGrafo();
     criarInterfaceDeMatriz();
     atualizarEstatisticas();
 });
 
+// ==================================================================
+// === FUNÇÃO ATUALIZADA PARA ACEITAR STRINGS NOS VÉRTICES ===
+// ==================================================================
 function handleEditConfirm() {
-    if (itemBeingEdited) {
-        const novoValor = editInput.value.trim();
-        if (novoValor !== "" && !isNaN(parseFloat(novoValor))) {
-            if (itemBeingEdited.type === 'new_edge') {
-                const { from, to } = itemBeingEdited.data;
-                edges.add({ from, to, label: novoValor });
-            }
-            else if (itemBeingEdited.type === 'node') {
-                nodes.update({ id: itemBeingEdited.id, label: novoValor });
-            }
-            else if (itemBeingEdited.type === 'edge') {
-                edges.update({ id: itemBeingEdited.id, label: novoValor });
-            }
-            atualizarEstatisticas();
-        } else {
-            alert("O valor deve ser um número e não pode ser vazio.");
-        }
-        document.getElementById("editModal").style.display = "none";
-        network.unselectAll();
-        itemBeingEdited = null;
+    if (!itemBeingEdited) {
+        return;
     }
+
+    const novoValor = document.getElementById("editInput").value.trim();
+    const { type, id, data } = itemBeingEdited;
+
+    // Validação para Vértices (permite strings)
+    if (type === 'node') {
+        if (novoValor === "") {
+            alert("O rótulo do vértice não pode ser vazio.");
+        } else {
+            nodes.update({ id: id, label: novoValor });
+        }
+    }
+    // Validação para Arestas (requer números para cálculos de rota)
+    else if (type === 'new_edge' || type === 'edge') {
+        if (novoValor === "" || isNaN(parseFloat(novoValor))) {
+            alert("O valor da aresta deve ser um número válido e não pode ser vazio.");
+        } else {
+            if (type === 'new_edge') {
+                const { from, to } = data;
+                edges.add({ from, to, label: novoValor });
+            } else { // type === 'edge'
+                edges.update({ id: id, label: novoValor });
+            }
+        }
+    }
+
+    // Atualiza o grafo e limpa o estado de edição
+    atualizarEstatisticas();
+    document.getElementById("editModal").style.display = "none";
+    network.unselectAll();
+    itemBeingEdited = null;
 }
 
 // === EVENTOS DO GRAFO ===
@@ -322,6 +346,49 @@ function atualizarMatriz() {
     matrizDiv.appendChild(table);
 }
 
+// <<< ALTERAÇÃO INSERIDA AQUI: Nova função para baixar a matriz como .txt >>>
+function baixarMatrizTxt() {
+    const currentNodes = nodes.get({ fields: ['id', 'label'] });
+    currentNodes.sort((a, b) => a.id - b.id);
+
+    if (currentNodes.length === 0) {
+        alert("O grafo está vazio. Não há matriz para baixar.");
+        return;
+    }
+
+    let content = "";
+
+    // Cria a linha de cabeçalho com os rótulos dos nós
+    const headers = currentNodes.map(node => node.label);
+    content += "\t" + headers.join("\t") + "\n";
+
+    // Cria cada linha da matriz
+    currentNodes.forEach(fromNode => {
+        let rowContent = fromNode.label; // Inicia a linha com o rótulo do nó
+        currentNodes.forEach(toNode => {
+            const edge = edges.get({
+                filter: (e) => e.from === fromNode.id && e.to === toNode.id,
+            });
+            const value = edge.length > 0 ? (edge[0].label || "1") : "0";
+            rowContent += "\t" + value;
+        });
+        content += rowContent + "\n";
+    });
+
+    // Cria um Blob com o conteúdo e inicia o download
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'matriz_adjacencia.txt';
+
+    // Adiciona ao corpo, clica e remove para garantir compatibilidade
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href); // Libera a memória
+}
+// <<< FIM DA ALTERAÇÃO >>>
+
 function atualizarEstatisticas() {
     const divPossiveis = document.getElementById("rotas-possiveis");
     const divCurta = document.getElementById("rota-curta");
@@ -375,19 +442,24 @@ function calcularRotas(origemId) {
 
         const conexoes = edges.get({
             filter: (edge) => {
-                return (edge.from === atual.id) || (edge.to === atual.id && edge.arrows && edge.arrows.includes('from'));
+                return (edge.from === atual.id); // Considerando apenas arestas direcionadas
             }
         });
 
         conexoes.forEach((edge) => {
-            const vizinhoId = edge.from === atual.id ? edge.to : edge.from;
+            const vizinhoId = edge.to;
             const pesoAresta = parseFloat(edge.label || "1");
             const novaDist = distancias[atual.id] + pesoAresta;
 
             if (novaDist < distancias[vizinhoId]) {
                 distancias[vizinhoId] = novaDist;
                 predecessores[vizinhoId] = atual.id;
-                pq.update({ id: vizinhoId, dist: novaDist });
+                // Adiciona ou atualiza o nó na fila de prioridade
+                if (pq.get(vizinhoId)) {
+                    pq.update({ id: vizinhoId, dist: novaDist });
+                } else {
+                    pq.add({ id: vizinhoId, dist: novaDist });
+                }
             }
         });
     }

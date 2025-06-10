@@ -10,6 +10,8 @@ let itemBeingEdited = null;
 let ferramentaSelecionada = null; // Adicionado para referência
 
 // === INICIALIZA GRAFO ===
+// Função de inicialização principal
+// É executada quando a página carrega. Configura o grafo do Vis.js, o modal de edição, os botões e chama as funções de configuração de eventos.
 window.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("mynetwork");
     const data = { nodes, edges };
@@ -58,21 +60,19 @@ window.addEventListener("DOMContentLoaded", () => {
         console.error("Elementos do modal de edição não encontrados no HTML!");
     }
 
-    // <<< ALTERAÇÃO INSERIDA AQUI: Adicionado evento de clique para o botão de download >>>
+    // Adicionado evento de clique para o botão de download
     const btnBaixarMatriz = document.getElementById("txt-converter");
     if (btnBaixarMatriz) {
         btnBaixarMatriz.onclick = baixarMatrizTxt;
     }
-    // <<< FIM DA ALTERAÇÃO >>>
 
     configurarEventosDoGrafo();
     criarInterfaceDeMatriz();
     atualizarEstatisticas();
 });
 
-// ==================================================================
-// === FUNÇÃO ATUALIZADA PARA ACEITAR STRINGS NOS VÉRTICES ===
-// ==================================================================
+// Função de confirmação da edição
+// Processa o salvamento do valor de um nó ou aresta. Valida a entrada, permitindo strings para nós e exigindo números para arestas.
 function handleEditConfirm() {
     if (!itemBeingEdited) {
         return;
@@ -111,8 +111,9 @@ function handleEditConfirm() {
 }
 
 // === EVENTOS DO GRAFO ===
+// Função de configuração dos eventos do grafo
+// Centraliza toda a lógica de interação com o grafo, como cliques e seleções para adicionar, remover, conectar ou renomear elementos.
 function configurarEventosDoGrafo() {
-    // <<< CORREÇÃO DO BUG APLICADA AQUI >>>
     network.on("click", (params) => {
         const { pointer, nodes: clickedNodes, edges: clickedEdges } = params;
 
@@ -192,6 +193,8 @@ function configurarEventosDoGrafo() {
 }
 
 // === INTERFACE DE MATRIZ ===
+// Função para criar a interface da matriz
+// Gera dinamicamente os elementos HTML (inputs, botões) para permitir que o usuário crie um grafo a partir de uma matriz de adjacência.
 function criarInterfaceDeMatriz() {
     const grafoContainer = document.querySelector(".graph-container");
     const terminal = document.querySelector(".terminal-container");
@@ -236,6 +239,8 @@ function criarInterfaceDeMatriz() {
     };
 }
 
+// Função para gerar a tabela de entrada da matriz
+// Cria uma tabela HTML com inputs para o usuário preencher os valores da matriz de adjacência.
 function gerarTabelaDeEntrada(container, n) {
     container.innerHTML = "";
     const table = document.createElement("table");
@@ -269,6 +274,8 @@ function gerarTabelaDeEntrada(container, n) {
     container.appendChild(table);
 }
 
+// Função para criar o grafo a partir da matriz
+// Lê os valores da tabela de entrada, limpa o grafo atual e cria novos nós e arestas com base na matriz fornecida.
 function criarGrafoAPartirDaMatriz(container, n) {
     const inputs = container.querySelectorAll("input");
     const matriz = Array.from({ length: n }, () => Array(n).fill(0));
@@ -305,6 +312,8 @@ function criarGrafoAPartirDaMatriz(container, n) {
     }
 }
 
+// Função para atualizar a exibição da matriz
+// Gera uma tabela de matriz de adjacência (somente leitura) que reflete o estado atual do grafo exibido na tela.
 function atualizarMatriz() {
     const matrizDiv = document.getElementById("matrizOutputContainer");
     if (!matrizDiv) return;
@@ -346,7 +355,8 @@ function atualizarMatriz() {
     matrizDiv.appendChild(table);
 }
 
-// <<< ALTERAÇÃO INSERIDA AQUI: Nova função para baixar a matriz como .txt >>>
+// Função para baixar a matriz em formato .txt
+// Constrói uma representação em texto da matriz de adjacência atual e a oferece para download como um arquivo .txt.
 function baixarMatrizTxt() {
     const currentNodes = nodes.get({ fields: ['id', 'label'] });
     currentNodes.sort((a, b) => a.id - b.id);
@@ -387,8 +397,9 @@ function baixarMatrizTxt() {
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href); // Libera a memória
 }
-// <<< FIM DA ALTERAÇÃO >>>
 
+// Função para atualizar as estatísticas do grafo
+// Calcula e exibe as informações de rotas (possíveis, mais curta e mais longa) para cada nó do grafo.
 function atualizarEstatisticas() {
     const divPossiveis = document.getElementById("rotas-possiveis");
     const divCurta = document.getElementById("rota-curta");
@@ -421,6 +432,8 @@ function atualizarEstatisticas() {
     });
 }
 
+// Função para calcular as rotas a partir de uma origem
+// Implementa o algoritmo de Dijkstra para encontrar os caminhos mais curtos de um nó de origem para todos os outros nós alcançáveis.
 function calcularRotas(origemId) {
     const distancias = {};
     const predecessores = {};

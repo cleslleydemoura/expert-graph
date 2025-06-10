@@ -17,6 +17,10 @@ let closeButton;
 let itemBeingEdited = null; // Guarda o ID e tipo (node/edge) do item sendo editado
 
 // === INICIALIZA GRAFO ===
+// Função de inicialização principal
+// É executada quando o conteúdo da página é carregado. Configura o grafo do Vis.js,
+// inicializa os elementos do modal de edição e seus eventos, e chama as funções
+// para configurar os eventos do grafo e a interface da matriz.
 window.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("mynetwork");
     const data = { nodes, edges };
@@ -73,7 +77,9 @@ window.addEventListener("DOMContentLoaded", () => {
     atualizarEstatisticas(); // estatísticas iniciais
 });
 
-// Função para manipular a confirmação da edição (usada pelo botão e Enter)
+// Função de confirmação da edição
+// Lida com a lógica de salvar o novo valor de um nó ou aresta após a edição no modal.
+// É chamada tanto pelo clique no botão "confirmar" quanto ao pressionar "Enter".
 function handleEditConfirm() {
     if (itemBeingEdited) {
         const novoValor = editInput.value.trim();
@@ -93,8 +99,10 @@ function handleEditConfirm() {
     }
 }
 
-
 // === EVENTOS DO GRAFO ===
+// Função de configuração dos eventos do grafo
+// Centraliza toda a lógica de interação com o grafo, como cliques e seleções.
+// Define o que acontece quando o usuário clica para adicionar, remover, conectar ou renomear elementos.
 function configurarEventosDoGrafo() {
     // Evento de CLIQUE no grafo
     network.on("click", (params) => {
@@ -138,7 +146,7 @@ function configurarEventosDoGrafo() {
             // Desseleciona a ferramenta "Limpar Grafo" após a ação
             const clearGraphMenuItem = document.querySelector('.menu-item .tooltip[data-tooltip="Limpar Grafo"]');
             if (clearGraphMenuItem) {
-                 clearGraphMenuItem.parentElement.classList.remove('selected');
+                clearGraphMenuItem.parentElement.classList.remove('selected');
             }
             ferramentaSelecionada = null; // Zera a ferramenta selecionada
         }
@@ -215,6 +223,9 @@ function configurarEventosDoGrafo() {
 }
 
 // === INTERFACE DE MATRIZ ===
+// Função para criar a interface de matriz
+// Cria dinamicamente os elementos HTML (inputs e botões) para permitir que o usuário
+// insira uma matriz de adjacência e gere um grafo a partir dela.
 function criarInterfaceDeMatriz() {
     const grafoContainer = document.querySelector(".graph-container");
     const terminal = document.querySelector(".terminal-container");
@@ -268,6 +279,8 @@ function criarInterfaceDeMatriz() {
     };
 }
 
+// Função para gerar a tabela de entrada da matriz
+// Cria uma tabela HTML com inputs para que o usuário possa preencher os valores da matriz de adjacência.
 function gerarTabelaDeEntrada(container, n) {
     container.innerHTML = "";
     const table = document.createElement("table");
@@ -303,6 +316,8 @@ function gerarTabelaDeEntrada(container, n) {
     container.appendChild(table);
 }
 
+// Função para criar o grafo a partir da matriz
+// Lê os valores da tabela de entrada, limpa o grafo atual e cria novos nós e arestas com base na matriz fornecida.
 function criarGrafoAPartirDaMatriz(container, n) {
     const inputs = container.querySelectorAll("input");
     const matriz = Array.from({ length: n }, () => Array(n).fill(0));
@@ -345,6 +360,8 @@ function criarGrafoAPartirDaMatriz(container, n) {
 }
 
 // === MATRIZ DE ADJACÊNCIA GERADA AUTOMATICAMENTE ===
+// Função para atualizar a exibição da matriz
+// Gera uma tabela de matriz de adjacência somente leitura que reflete o estado atual do grafo desenhado na tela.
 function atualizarMatriz() {
     const matrizDiv = document.getElementById("matrizOutputContainer");
     if (!matrizDiv) return;
@@ -385,6 +402,9 @@ function atualizarMatriz() {
 }
 
 // === ESTATÍSTICAS DO GRAFO ===
+// Função para atualizar as estatísticas do grafo
+// Limpa e re-calcula as informações de rotas (possíveis, curta e longa) para cada nó
+// no grafo, exibindo os resultados nos painéis correspondentes.
 function atualizarEstatisticas() {
     const divPossiveis = document.getElementById("rotas-possiveis");
     const divCurta = document.getElementById("rota-curta");
@@ -417,6 +437,9 @@ function atualizarEstatisticas() {
     });
 }
 
+// Função para calcular as rotas a partir de uma origem
+// Utiliza um algoritmo de busca em largura (similar a Dijkstra) para encontrar todos os nós
+// alcançáveis a partir de um nó de origem e determinar as distâncias mais curta e mais longa.
 function calcularRotas(origemId) {
     const fila = [{ id: origemId, dist: 0 }];
     const visitados = new Set([origemId]);

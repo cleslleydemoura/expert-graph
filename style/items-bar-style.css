@@ -11,9 +11,8 @@
   background-color: white;
   box-shadow: 0 4px 16px #00000033;
   z-index: 2;
-  justify-content: left; /* JOGA OS ELEMENTOS DO MENU PARA A ESQUERDA */
-  align-items: center; /* CENTRALIZA OS ITENS */
-  overflow: hidden; /* Evita que os itens saiam para fora da div*/
+  justify-content: left;
+  align-items: center;
 }
 
 .items-container img {
@@ -42,9 +41,9 @@
   transition: all 100ms;
   background-color: #72bfa2;
   transform: translateY(-5px);
+  z-index: 10;
 }
 
-/* Para marcar o item selecionado no items bar */
 .menu-item.selected {
   border: 2px solid #72bfa2;
 }

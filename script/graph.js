@@ -18,9 +18,6 @@ let itemBeingEdited = null; // Guarda o ID e tipo (node/edge) do item sendo edit
 
 // === INICIALIZA GRAFO ===
 // Função de inicialização principal
-// É executada quando o conteúdo da página é carregado. Configura o grafo do Vis.js,
-// inicializa os elementos do modal de edição e seus eventos, e chama as funções
-// para configurar os eventos do grafo e a interface da matriz.
 window.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("mynetwork");
     const data = { nodes, edges };
@@ -28,7 +25,7 @@ window.addEventListener("DOMContentLoaded", () => {
         interaction: {
             dragNodes: true,
             multiselect: false,
-            zoomView: false, // Desabilita o zoom com duplo clique padrão do Vis.js
+            zoomView: false,
         },
         physics: { enabled: false, stabilization: true },
     };
@@ -44,7 +41,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (editModal && editInput && confirmEditBtn && closeButton) {
         closeButton.onclick = () => {
             editModal.style.display = "none";
-            network.unselectAll(); // Desseleciona qualquer item no grafo
+            network.unselectAll();
             itemBeingEdited = null;
         };
 
@@ -54,12 +51,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
         editInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
-                e.preventDefault(); // Previne o envio de formulário, se houver
+                e.preventDefault();
                 handleEditConfirm();
             }
         });
 
-        // Fecha o modal se clicar fora dele
         window.onclick = (event) => {
             if (event.target == editModal) {
                 editModal.style.display = "none";
@@ -74,54 +70,70 @@ window.addEventListener("DOMContentLoaded", () => {
 
     configurarEventosDoGrafo();
     criarInterfaceDeMatriz();
-    atualizarEstatisticas(); // estatísticas iniciais
+    atualizarEstatisticas();
 });
 
+
+// === ALTERAÇÃO INICIADA ===
 // Função de confirmação da edição
-// Lida com a lógica de salvar o novo valor de um nó ou aresta após a edição no modal.
-// É chamada tanto pelo clique no botão "confirmar" quanto ao pressionar "Enter".
+// Esta função agora valida se o valor da aresta é um número e sabe como criar uma nova aresta.
 function handleEditConfirm() {
-    if (itemBeingEdited) {
-        const novoValor = editInput.value.trim();
-        if (novoValor !== "") {
-            if (itemBeingEdited.type === 'node') {
-                nodes.update({ id: itemBeingEdited.id, label: novoValor });
-            } else if (itemBeingEdited.type === 'edge') {
-                edges.update({ id: itemBeingEdited.id, label: novoValor });
-            }
-            atualizarEstatisticas();
-        } else {
-            alert("O nome/valor não pode ser vazio.");
-        }
-        editModal.style.display = "none";
-        network.unselectAll();
-        itemBeingEdited = null;
+    if (!itemBeingEdited) {
+        return;
     }
+
+    const novoValor = editInput.value.trim();
+    const { type, id, data } = itemBeingEdited;
+
+    // Validação e salvamento para Vértices
+    if (type === 'node') {
+        if (novoValor === "") {
+            alert("O rótulo do vértice não pode ser vazio.");
+            return; // Impede que o modal feche se a validação falhar
+        }
+        nodes.update({ id: id, label: novoValor });
+    }
+    // Validação e salvamento para Arestas (novas ou existentes)
+    else if (type === 'new_edge' || type === 'edge') {
+        // Garante que o valor da aresta seja sempre um número
+        if (novoValor === "" || isNaN(parseFloat(novoValor))) {
+            alert("O valor da aresta deve ser um número válido.");
+            return; // Impede que o modal feche se a validação falhar
+        }
+
+        if (type === 'new_edge') {
+            const { from, to } = data;
+            edges.add({ from, to, label: novoValor });
+        } else { // type === 'edge'
+            edges.update({ id: id, label: novoValor });
+        }
+    }
+
+    // Limpa o estado e fecha o modal apenas se a validação passar
+    editModal.style.display = "none";
+    network.unselectAll();
+    itemBeingEdited = null;
+    atualizarEstatisticas();
 }
+
 
 // === EVENTOS DO GRAFO ===
 // Função de configuração dos eventos do grafo
-// Centraliza toda a lógica de interação com o grafo, como cliques e seleções.
-// Define o que acontece quando o usuário clica para adicionar, remover, conectar ou renomear elementos.
 function configurarEventosDoGrafo() {
     // Evento de CLIQUE no grafo
     network.on("click", (params) => {
         const { pointer, nodes: clickedNodes, edges: clickedEdges } = params;
 
-        // Limpa a seleção de arestas se o usuário clicar no fundo do grafo
         if (ferramentaSelecionada === "Aresta" && arestaSelecion.length > 0 && clickedNodes.length === 0 && clickedEdges.length === 0) {
             arestaSelecion = [];
             console.log("Seleção de aresta resetada ao clicar fora.");
         }
 
-        // Se o modal de edição estiver visível e clicarmos em algo, esconda-o
-        // (Isso é para evitar que o modal fique aberto se o usuário mudar de ideia)
         if (editModal.style.display === "flex" && clickedNodes.length === 0 && clickedEdges.length === 0) {
             editModal.style.display = "none";
             network.unselectAll();
             itemBeingEdited = null;
         }
-
 
         if (ferramentaSelecionada === "Vértice" && pointer) {
             nodes.add({
@@ -143,89 +155,93 @@ function configurarEventosDoGrafo() {
             nodes.clear();
             edges.clear();
             proximoNoId = 0;
-            // Desseleciona a ferramenta "Limpar Grafo" após a ação
             const clearGraphMenuItem = document.querySelector('.menu-item .tooltip[data-tooltip="Limpar Grafo"]');
             if (clearGraphMenuItem) {
                 clearGraphMenuItem.parentElement.classList.remove('selected');
             }
-            ferramentaSelecionada = null; // Zera a ferramenta selecionada
+            ferramentaSelecionada = null;
         }
         atualizarEstatisticas();
     });
 
-    // Evento SELECT NODE - para conectar arestas ou RENOMEAR NÓ
+    // Evento SELECT NODE - para conectar arestas ou RENOMEAR VÉRTICE
     network.on("selectNode", (params) => {
-        if (params.nodes.length > 0) { // Garante que um nó foi realmente selecionado
+        if (params.nodes.length > 0) {
             if (ferramentaSelecionada === "Aresta") {
                 arestaSelecion.push(params.nodes[0]);
+
                 if (arestaSelecion.length === 2) {
                     const [from, to] = arestaSelecion;
-                    // Evita criar arestas se já existirem na mesma direção ou entre o mesmo nó
                     const existingEdge = edges.get({
                         filter: (e) =>
                             (e.from === from && e.to === to) || (e.from === to && e.to === from),
                     });
-                    if (existingEdge.length === 0 && from !== to) { // Impede arestas para o mesmo nó
-                        edges.add({ from, to, label: "1" }); // Adiciona aresta com valor padrão "1"
+
+                    if (existingEdge.length === 0 && from !== to) {
+                        // Em vez de adicionar a aresta, abre o modal para pedir o valor
+                        itemBeingEdited = {
+                            type: 'new_edge',
+                            data: { from, to }
+                        };
+                        editInput.value = "1"; // Valor padrão
+                        editModal.style.display = "flex";
+                        editInput.focus();
+
                     } else if (from === to) {
-                        console.warn("Não é possível criar uma aresta de um nó para ele mesmo com esta ferramenta.");
+                        console.warn("Não é possível criar uma aresta de um nó para ele mesmo.");
                     } else {
                         console.warn("Aresta entre esses nós já existe.");
                     }
                     arestaSelecion = []; // Reseta a seleção para próxima aresta
-                    atualizarEstatisticas();
+                    // A atualização de estatísticas agora acontece no handleEditConfirm
                 }
-            } else if (ferramentaSelecionada === "Renomear") {
+            } else if (ferramentaSelecionada === "Renomear Vértice") {
                 const nodeId = params.nodes[0];
                 itemBeingEdited = { type: 'node', id: nodeId };
                 editInput.value = nodes.get(nodeId).label;
-                editModal.style.display = "flex"; // Usa flex para centralizar
+                editModal.style.display = "flex";
                 editInput.focus();
             }
         }
     });
+    // === ALTERAÇÃO FINALIZADA ===
+
 
     // Evento SELECT EDGE - para RENOMEAR ARESTA
     network.on("selectEdge", (params) => {
-        if (params.edges.length > 0) { // Garante que uma aresta foi realmente selecionada
-            if (ferramentaSelecionada === "Renomear") {
+        if (params.edges.length > 0) {
+            if (ferramentaSelecionada === "Renomear Aresta") {
                 const edgeId = params.edges[0];
                 itemBeingEdited = { type: 'edge', id: edgeId };
-                editInput.value = edges.get(edgeId).label || "1"; // Valor padrão '1' se não houver rótulo
-                editModal.style.display = "flex"; // Usa flex para centralizar
+                editInput.value = edges.get(edgeId).label || "1";
+                editModal.style.display = "flex";
                 editInput.focus();
             }
         }
     });
 
-    // Mantendo o evento DOUBLE CLICK COM CONSOLE.LOG
-    // Isso é útil para depurar se o doubleClick está sendo detectado pelo Electron
     network.on("doubleClick", (params) => {
-        console.log("Evento doubleClick disparado! (Este evento não é usado para renomear, mas está sendo detectado)", params);
+        console.log("Evento doubleClick disparado!", params);
     });
 
-    // Eventos de desseleção para limpar o estado de edição se o usuário mudar de seleção
     network.on("deselectNode", () => {
-        // Se a ferramenta "Renomear" NÃO estiver ativa, ou se o modal já está fechado,
-        // não precisamos fazer nada aqui. A lógica principal de fechar o modal
-        // está no click no fundo ou no botão/enter.
-        if (ferramentaSelecionada !== "Renomear" && editModal.style.display === "flex") {
+        if (ferramentaSelecionada !== "Renomear Vértice" && editModal.style.display === "flex") {
             editModal.style.display = "none";
             itemBeingEdited = null;
         }
     });
+
     network.on("deselectEdge", () => {
-        if (ferramentaSelecionada !== "Renomear" && editModal.style.display === "flex") {
+        if (ferramentaSelecionada !== "Renomear Aresta" && editModal.style.display === "flex") {
             editModal.style.display = "none";
             itemBeingEdited = null;
         }
     });
 }
 
+// === O RESTANTE DO CÓDIGO PERMANECE IGUAL ===
+
 // === INTERFACE DE MATRIZ ===
-// Função para criar a interface de matriz
-// Cria dinamicamente os elementos HTML (inputs e botões) para permitir que o usuário
-// insira uma matriz de adjacência e gere um grafo a partir dela.
 function criarInterfaceDeMatriz() {
     const grafoContainer = document.querySelector(".graph-container");
     const terminal = document.querySelector(".terminal-container");
@@ -280,7 +296,6 @@ function criarInterfaceDeMatriz() {
 }
 
 // Função para gerar a tabela de entrada da matriz
-// Cria uma tabela HTML com inputs para que o usuário possa preencher os valores da matriz de adjacência.
 function gerarTabelaDeEntrada(container, n) {
     container.innerHTML = "";
     const table = document.createElement("table");
@@ -317,7 +332,6 @@ function gerarTabelaDeEntrada(container, n) {
 }
 
 // Função para criar o grafo a partir da matriz
-// Lê os valores da tabela de entrada, limpa o grafo atual e cria novos nós e arestas com base na matriz fornecida.
 function criarGrafoAPartirDaMatriz(container, n) {
     const inputs = container.querySelectorAll("input");
     const matriz = Array.from({ length: n }, () => Array(n).fill(0));
@@ -330,7 +344,7 @@ function criarGrafoAPartirDaMatriz(container, n) {
 
     nodes.clear();
     edges.clear();
-    proximoNoId = 0; // Resetar proximoNoId ao criar grafo da matriz
+    proximoNoId = 0;
 
     const angleStep = (2 * Math.PI) / n;
     const radius = 200;
@@ -360,8 +374,6 @@ function criarGrafoAPartirDaMatriz(container, n) {
 }
 
 // === MATRIZ DE ADJACÊNCIA GERADA AUTOMATICAMENTE ===
-// Função para atualizar a exibição da matriz
-// Gera uma tabela de matriz de adjacência somente leitura que reflete o estado atual do grafo desenhado na tela.
 function atualizarMatriz() {
     const matrizDiv = document.getElementById("matrizOutputContainer");
     if (!matrizDiv) return;
@@ -402,9 +414,6 @@ function atualizarMatriz() {
 }
 
 // === ESTATÍSTICAS DO GRAFO ===
-// Função para atualizar as estatísticas do grafo
-// Limpa e re-calcula as informações de rotas (possíveis, curta e longa) para cada nó
-// no grafo, exibindo os resultados nos painéis correspondentes.
 function atualizarEstatisticas() {
     const divPossiveis = document.getElementById("rotas-possiveis");
     const divCurta = document.getElementById("rota-curta");
@@ -438,15 +447,10 @@ function atualizarEstatisticas() {
 }
 
 // Função para calcular as rotas a partir de uma origem
-// Utiliza um algoritmo de busca em largura (similar a Dijkstra) para encontrar todos os nós
-// alcançáveis a partir de um nó de origem e determinar as distâncias mais curta e mais longa.
 function calcularRotas(origemId) {
     const fila = [{ id: origemId, dist: 0 }];
     const visitados = new Set([origemId]);
     const distancias = { [origemId]: 0 };
-
-    // let maxDist = 0;
-    // let minDist = Infinity;
 
     while (fila.length > 0) {
         const atual = fila.shift();

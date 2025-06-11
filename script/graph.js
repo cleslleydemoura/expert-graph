@@ -67,6 +67,13 @@ window.addEventListener("DOMContentLoaded", () => {
         console.error("Elementos do modal de edição não encontrados no HTML!");
     }
 
+    // === ALTERAÇÃO ADICIONADA ===
+    // Adicionado evento de clique para o botão de download do TXT.
+    const btnBaixarMatriz = document.getElementById("txt-converter");
+    if (btnBaixarMatriz) {
+        btnBaixarMatriz.onclick = baixarMatrizTxt;
+    }
+    // === FIM DA ALTERAÇÃO ===
 
     configurarEventosDoGrafo();
     criarInterfaceDeMatriz();
@@ -412,6 +419,48 @@ function atualizarMatriz() {
     });
     matrizDiv.appendChild(table);
 }
+
+// === ALTERAÇÃO ADICIONADA ===
+// BAIXAR_MATRIZ_TXT
+// Converte a matriz de adjacência atual em uma string formatada e inicia o download de um arquivo .txt.
+function baixarMatrizTxt() {
+    const currentNodes = nodes.get({ fields: ['id', 'label'] });
+    currentNodes.sort((a, b) => a.id - b.id);
+
+    if (currentNodes.length === 0) {
+        alert("O grafo está vazio. Não há matriz para baixar.");
+        return;
+    }
+
+    let content = "";
+
+    const headers = currentNodes.map(node => node.label);
+    content += "\t" + headers.join("\t") + "\n";
+
+    currentNodes.forEach(fromNode => {
+        let rowContent = fromNode.label;
+        currentNodes.forEach(toNode => {
+            const edge = edges.get({
+                filter: (e) => e.from === fromNode.id && e.to === toNode.id,
+            });
+            const value = edge.length > 0 ? (edge[0].label || "1") : "0";
+            rowContent += "\t" + value;
+        });
+        content += rowContent + "\n";
+    });
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'matriz_adjacencia.txt';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+}
+// === FIM DA ALTERAÇÃO ===
+
 
 // === ESTATÍSTICAS DO GRAFO ===
 function atualizarEstatisticas() {

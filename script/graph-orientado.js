@@ -6,13 +6,13 @@ let network;
 let proximoNoId = 0;
 let arestaSelecion = [];
 let itemBeingEdited = null;
-let ferramentaSelecionada = null; // Adicionado para referência
+let ferramentaSelecionada = null;
+let ultimosResultadosDeRota = null; // NOVO: Armazena os últimos resultados de rota calculados
 
 // === INICIALIZA GRAFO ===
 
 // WINDOW.ADD_EVENT_LISTENER
 // Função de inicialização principal.
-// É executada quando a página carrega. Configura o grafo do Vis.js, o modal de edição, os botões e chama as funções de configuração de eventos.
 window.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("mynetwork");
     const data = { nodes, edges };
@@ -67,7 +67,7 @@ window.addEventListener("DOMContentLoaded", () => {
         btnBaixarMatriz.onclick = baixarMatrizTxt;
     }
     
-    // *** NOVO: Adiciona evento de clique para o botão de cálculo de rotas ***
+    // Adiciona evento de clique para o botão de cálculo de rotas
     const btnCalcularRotas = document.getElementById("calculate-routes-btn");
     if (btnCalcularRotas) {
         btnCalcularRotas.onclick = atualizarEstatisticas;
@@ -78,7 +78,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // HANDLE_EDIT_CONFIRM
-// Processa o salvamento do valor de um nó ou aresta. Valida a entrada, permitindo strings para nós e exigindo números para arestas.
+// Processa o salvamento do valor de um nó ou aresta.
 function handleEditConfirm() {
     if (!itemBeingEdited) {
         return;
@@ -87,7 +87,6 @@ function handleEditConfirm() {
     const novoValor = document.getElementById("editInput").value.trim();
     const { type, id, data } = itemBeingEdited;
 
-    // Validação para Vértices (permite strings)
     if (type === 'node') {
         if (novoValor === "") {
             alert("O rótulo do vértice não pode ser vazio.");
@@ -95,7 +94,6 @@ function handleEditConfirm() {
             nodes.update({ id: id, label: novoValor });
         }
     }
-    // Validação para Arestas (requer números para cálculos de rota)
     else if (type === 'new_edge' || type === 'edge') {
         if (novoValor === "" || isNaN(parseFloat(novoValor))) {
             alert("O valor da aresta deve ser um número válido e não pode ser vazio.");
@@ -103,13 +101,12 @@ function handleEditConfirm() {
             if (type === 'new_edge') {
                 const { from, to } = data;
                 edges.add({ from, to, label: novoValor });
-            } else { // type === 'edge'
+            } else {
                 edges.update({ id: id, label: novoValor });
             }
         }
     }
 
-    // Atualiza o grafo e limpa o estado de edição
     limparResultadosDeRota();
     document.getElementById("editModal").style.display = "none";
     network.unselectAll();
@@ -119,23 +116,19 @@ function handleEditConfirm() {
 // === EVENTOS DO GRAFO ===
 
 // CONFIGURAR_EVENTOS_DO_GRAFO
-// Centraliza toda a lógica de interação com o grafo, como cliques e seleções para adicionar, remover, conectar ou renomear elementos.
+// Centraliza toda a lógica de interação com o grafo.
 function configurarEventosDoGrafo() {
     network.on("click", (params) => {
         const { pointer, nodes: clickedNodes, edges: clickedEdges } = params;
 
-        // Se o clique foi em um nó e a ferramenta NÃO é de criar Aresta,
-        // limpa o estado de criação de aresta para evitar conflitos.
         if (clickedNodes.length > 0 && ferramentaSelecionada !== 'Aresta') {
             arestaSelecion = [];
         }
 
-        // Lógica original para limpar seleção ao clicar no fundo
         if (ferramentaSelecionada === "Aresta" && arestaSelecion.length > 0 && clickedNodes.length === 0 && clickedEdges.length === 0) {
             arestaSelecion = [];
         }
 
-        // Lógica das ferramentas
         let graphChanged = false;
         if (ferramentaSelecionada === "Vértice" && pointer) {
             nodes.add({ id: proximoNoId, label: `V${proximoNoId}`, x: pointer.canvas.x, y: pointer.canvas.y, shape: "dot", size: 25, color: { background: "#6e7d7e", border: "#333" }, font: { color: "#333", face: "Work Sans", size: 16 } });
@@ -165,7 +158,6 @@ function configurarEventosDoGrafo() {
 
         const nodeId = params.nodes[0];
 
-        // MODIFICADO: Verifica a ferramenta "Renomear Vértice"
         if (ferramentaSelecionada === "Renomear Vértice") {
             itemBeingEdited = { type: 'node', id: nodeId };
             document.getElementById("editInput").value = nodes.get(nodeId).label;
@@ -198,7 +190,6 @@ function configurarEventosDoGrafo() {
     });
 
     network.on("selectEdge", (params) => {
-        // MODIFICADO: Verifica a ferramenta "Renomear Aresta"
         if (params.edges.length > 0 && ferramentaSelecionada === "Renomear Aresta") {
             const edgeId = params.edges[0];
             itemBeingEdited = { type: 'edge', id: edgeId };
@@ -212,7 +203,7 @@ function configurarEventosDoGrafo() {
 // === INTERFACE DE MATRIZ ===
 
 // CRIAR_INTERFACE_DE_MATRIZ
-// Cria e configura os elementos HTML (botões, inputs) para a funcionalidade de adicionar/exibir a matriz de adjacência.
+// Cria os elementos HTML para a funcionalidade de adicionar/exibir a matriz.
 function criarInterfaceDeMatriz() {
     const grafoContainer = document.querySelector(".graph-container");
     const terminal = document.querySelector(".terminal-container");
@@ -258,7 +249,7 @@ function criarInterfaceDeMatriz() {
 }
 
 // GERAR_TABELA_DE_ENTRADA
-// Gera dinamicamente uma tabela HTML para que o usuário possa inserir os valores da matriz de adjacência.
+// Gera a tabela HTML para inserir a matriz.
 function gerarTabelaDeEntrada(container, n) {
     container.innerHTML = "";
     const table = document.createElement("table");
@@ -293,7 +284,7 @@ function gerarTabelaDeEntrada(container, n) {
 }
 
 // CRIAR_GRAFO_A_PARTIR_DA_MATRIZ
-// Lê os valores da tabela de entrada, limpa o grafo existente e cria um novo grafo com base na matriz fornecida.
+// Cria um novo grafo com base na matriz fornecida.
 function criarGrafoAPartirDaMatriz(container, n) {
     const inputs = container.querySelectorAll("input");
     const matriz = Array.from({ length: n }, () => Array(n).fill(0));
@@ -331,7 +322,7 @@ function criarGrafoAPartirDaMatriz(container, n) {
 }
 
 // ATUALIZAR_MATRIZ
-// Gera e exibe a matriz de adjacência correspondente ao estado atual do grafo na tela.
+// Gera e exibe a matriz de adjacência na tela.
 function atualizarMatriz() {
     const matrizDiv = document.getElementById("matrizOutputContainer");
     if (!matrizDiv) return;
@@ -374,18 +365,17 @@ function atualizarMatriz() {
 }
 
 // BAIXAR_MATRIZ_TXT
-// Converte a matriz de adjacência atual em uma string formatada e inicia o download de um arquivo .txt.
+// Converte a matriz e as rotas em uma string e inicia o download.
 function baixarMatrizTxt() {
     const currentNodes = nodes.get({ fields: ['id', 'label'] });
     currentNodes.sort((a, b) => a.id - b.id);
 
     if (currentNodes.length === 0) {
-        alert("O grafo está vazio. Não há matriz para baixar.");
+        alert("O grafo está vazio. Não há dados para baixar.");
         return;
     }
 
-    let content = "";
-
+    let content = "### MATRIZ DE ADJACÊNCIA ###\n";
     const headers = currentNodes.map(node => node.label);
     content += "\t" + headers.join("\t") + "\n";
 
@@ -401,10 +391,29 @@ function baixarMatrizTxt() {
         content += rowContent + "\n";
     });
 
+    // *** ATUALIZADO: Adiciona os resultados das rotas, se existirem ***
+    if (ultimosResultadosDeRota && ultimosResultadosDeRota.caminhos.length > 0) {
+        content += "\n\n### ANÁLISE DE ROTAS ###\n";
+        content += `Resultados de ${ultimosResultadosDeRota.startLabel} para ${ultimosResultadosDeRota.endLabel}\n\n`;
+
+        const caminhosOrdenados = ultimosResultadosDeRota.caminhos; // Já estão ordenados
+        const menorRota = caminhosOrdenados[0];
+        const maiorRota = caminhosOrdenados[caminhosOrdenados.length - 1];
+
+        content += `Menor Rota: ${menorRota.path.join(" -> ")} (Custo: ${menorRota.cost})\n`;
+        content += `Maior Rota: ${maiorRota.path.join(" -> ")} (Custo: ${maiorRota.cost})\n\n`;
+        content += `Total de Rotas Possíveis: ${caminhosOrdenados.length}\n`;
+        content += "----------------------------------------\n";
+
+        caminhosOrdenados.forEach(caminho => {
+            content += `${caminho.path.join(" -> ")} (Custo: ${caminho.cost})\n`;
+        });
+    }
+
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'matriz_adjacencia.txt';
+    link.download = 'matriz.txt';
 
     document.body.appendChild(link);
     link.click();
@@ -412,57 +421,47 @@ function baixarMatrizTxt() {
     URL.revokeObjectURL(link.href);
 }
 
-// === LÓGICA DE ROTAS (NOVO) ===
+// === LÓGICA DE ROTAS ===
 
 /**
- * *** NOVO: Limpa a área de resultados de rota. ***
- * Chamado sempre que o grafo é modificado para evitar exibir dados desatualizados.
+ * Limpa a área de resultados de rota e a variável global.
  */
 function limparResultadosDeRota() {
     const resultsDiv = document.getElementById("route-results");
     if(resultsDiv) {
         resultsDiv.innerHTML = "<p>O grafo foi modificado. Faça uma nova busca.</p>";
     }
+    ultimosResultadosDeRota = null; // Limpa os dados armazenados
 }
 
 /**
- * *** NOVO: Encontra todos os caminhos simples (sem ciclos) entre um nó de início e um de fim. ***
- * @param {number} inicioId - O ID do nó de partida.
- * @param {number} fimId - O ID do nó de destino.
- * @returns {Array<Object>} Uma lista de objetos, onde cada objeto representa um caminho encontrado
- * com sua rota (Array de labels) e custo total.
+ * Encontra todos os caminhos simples (sem ciclos) entre um nó de início e um de fim.
  */
 function encontrarTodosOsCaminhos(inicioId, fimId) {
     const todosOsCaminhos = [];
 
-    // Função recursiva de busca em profundidade (DFS)
     function dfs(noAtualId, caminhoAtual, custoAtual) {
-        // Adiciona o nó atual ao caminho
         const noAtual = nodes.get(noAtualId);
         caminhoAtual.push(noAtual.label);
 
-        // Caso base: Chegou ao destino
         if (noAtualId === fimId) {
             todosOsCaminhos.push({ path: [...caminhoAtual], cost: custoAtual });
-            caminhoAtual.pop(); // Backtrack para encontrar outros caminhos
+            caminhoAtual.pop();
             return;
         }
 
-        // Passo recursivo: Explora os vizinhos
         const conexoes = edges.get({ filter: edge => edge.from === noAtualId });
 
         conexoes.forEach(edge => {
             const vizinhoId = edge.to;
             const vizinhoLabel = nodes.get(vizinhoId).label;
             
-            // Evita ciclos: não visita um nó que já está no caminho atual
             if (!caminhoAtual.includes(vizinhoLabel)) {
                 const pesoAresta = parseFloat(edge.label || "1");
                 dfs(vizinhoId, caminhoAtual, custoAtual + pesoAresta);
             }
         });
 
-        // Backtrack: remove o nó atual do caminho para explorar outras ramificações
         caminhoAtual.pop();
     }
 
@@ -471,15 +470,15 @@ function encontrarTodosOsCaminhos(inicioId, fimId) {
 }
 
 /**
- * *** ATUALIZADO: Lê os inputs, calcula e exibe as rotas entre os dois vértices selecionados. ***
- * Esta função é chamada pelo botão "Calcular Rotas".
+ * Lê os inputs, calcula, exibe e armazena as rotas.
  */
 function atualizarEstatisticas() {
     const startInput = document.getElementById("start-vertex");
     const endInput = document.getElementById("end-vertex");
     const resultsDiv = document.getElementById("route-results");
 
-    resultsDiv.innerHTML = ""; // Limpa resultados anteriores
+    resultsDiv.innerHTML = "";
+    limparResultadosDeRota(); // Limpa resultados anteriores antes de uma nova busca
 
     const startLabel = startInput.value.trim();
     const endLabel = endInput.value.trim();
@@ -489,7 +488,6 @@ function atualizarEstatisticas() {
         return;
     }
 
-    // Função auxiliar para obter o ID do nó pelo seu rótulo
     const getNodeIdByLabel = (label) => {
         const foundNode = nodes.get({ filter: node => node.label.toLowerCase() === label.toLowerCase() });
         return foundNode.length > 0 ? foundNode[0].id : null;
@@ -499,11 +497,11 @@ function atualizarEstatisticas() {
     const endId = getNodeIdByLabel(endLabel);
 
     if (startId === null) {
-        resultsDiv.innerHTML = `<p>Vértice de partida "${startLabel}" não encontrado. Verifique o rótulo.</p>`;
+        resultsDiv.innerHTML = `<p>Vértice de partida "${startLabel}" não encontrado.</p>`;
         return;
     }
     if (endId === null) {
-        resultsDiv.innerHTML = `<p>Vértice de chegada "${endLabel}" não encontrado. Verifique o rótulo.</p>`;
+        resultsDiv.innerHTML = `<p>Vértice de chegada "${endLabel}" não encontrado.</p>`;
         return;
     }
     
@@ -519,8 +517,15 @@ function atualizarEstatisticas() {
         return;
     }
 
-    // Ordena os caminhos pelo custo para encontrar o menor e o maior
     todosOsCaminhos.sort((a, b) => a.cost - b.cost);
+
+    // *** ATUALIZADO: Armazena os resultados globalmente ***
+    ultimosResultadosDeRota = {
+        startLabel: startLabel,
+        endLabel: endLabel,
+        caminhos: todosOsCaminhos
+    };
+    
     const menorRota = todosOsCaminhos[0];
     const maiorRota = todosOsCaminhos[todosOsCaminhos.length - 1];
 

@@ -182,5 +182,6 @@
 }
 
 #txt-converter:hover {
-  background-color: #104c9b;
+  transition: all 300ms;
+  background-color: #919191;
 }

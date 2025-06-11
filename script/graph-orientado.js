@@ -10,7 +10,9 @@ let itemBeingEdited = null;
 let ferramentaSelecionada = null; // Adicionado para referência
 
 // === INICIALIZA GRAFO ===
-// Função de inicialização principal
+
+// WINDOW.ADD_EVENT_LISTENER
+// Função de inicialização principal.
 // É executada quando a página carrega. Configura o grafo do Vis.js, o modal de edição, os botões e chama as funções de configuração de eventos.
 window.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("mynetwork");
@@ -71,7 +73,7 @@ window.addEventListener("DOMContentLoaded", () => {
     atualizarEstatisticas();
 });
 
-// Função de confirmação da edição
+// HANDLE_EDIT_CONFIRM
 // Processa o salvamento do valor de um nó ou aresta. Valida a entrada, permitindo strings para nós e exigindo números para arestas.
 function handleEditConfirm() {
     if (!itemBeingEdited) {
@@ -111,7 +113,8 @@ function handleEditConfirm() {
 }
 
 // === EVENTOS DO GRAFO ===
-// Função de configuração dos eventos do grafo
+
+// CONFIGURAR_EVENTOS_DO_GRAFO
 // Centraliza toda a lógica de interação com o grafo, como cliques e seleções para adicionar, remover, conectar ou renomear elementos.
 function configurarEventosDoGrafo() {
     network.on("click", (params) => {
@@ -150,7 +153,8 @@ function configurarEventosDoGrafo() {
 
         const nodeId = params.nodes[0];
 
-        if (ferramentaSelecionada === "Renomear") {
+        // MODIFICADO: Verifica a ferramenta "Renomear Vértice"
+        if (ferramentaSelecionada === "Renomear Vértice") {
             itemBeingEdited = { type: 'node', id: nodeId };
             document.getElementById("editInput").value = nodes.get(nodeId).label;
             document.getElementById("editModal").style.display = "flex";
@@ -182,7 +186,8 @@ function configurarEventosDoGrafo() {
     });
 
     network.on("selectEdge", (params) => {
-        if (params.edges.length > 0 && ferramentaSelecionada === "Renomear") {
+        // MODIFICADO: Verifica a ferramenta "Renomear Aresta"
+        if (params.edges.length > 0 && ferramentaSelecionada === "Renomear Aresta") {
             const edgeId = params.edges[0];
             itemBeingEdited = { type: 'edge', id: edgeId };
             document.getElementById("editInput").value = edges.get(edgeId).label || "1";
@@ -193,8 +198,9 @@ function configurarEventosDoGrafo() {
 }
 
 // === INTERFACE DE MATRIZ ===
-// Função para criar a interface da matriz
-// Gera dinamicamente os elementos HTML (inputs, botões) para permitir que o usuário crie um grafo a partir de uma matriz de adjacência.
+
+// CRIAR_INTERFACE_DE_MATRIZ
+// Cria e configura os elementos HTML (botões, inputs) para a funcionalidade de adicionar/exibir a matriz de adjacência.
 function criarInterfaceDeMatriz() {
     const grafoContainer = document.querySelector(".graph-container");
     const terminal = document.querySelector(".terminal-container");
@@ -239,8 +245,8 @@ function criarInterfaceDeMatriz() {
     };
 }
 
-// Função para gerar a tabela de entrada da matriz
-// Cria uma tabela HTML com inputs para o usuário preencher os valores da matriz de adjacência.
+// GERAR_TABELA_DE_ENTRADA
+// Gera dinamicamente uma tabela HTML para que o usuário possa inserir os valores da matriz de adjacência.
 function gerarTabelaDeEntrada(container, n) {
     container.innerHTML = "";
     const table = document.createElement("table");
@@ -274,8 +280,8 @@ function gerarTabelaDeEntrada(container, n) {
     container.appendChild(table);
 }
 
-// Função para criar o grafo a partir da matriz
-// Lê os valores da tabela de entrada, limpa o grafo atual e cria novos nós e arestas com base na matriz fornecida.
+// CRIAR_GRAFO_A_PARTIR_DA_MATRIZ
+// Lê os valores da tabela de entrada, limpa o grafo existente e cria um novo grafo com base na matriz fornecida.
 function criarGrafoAPartirDaMatriz(container, n) {
     const inputs = container.querySelectorAll("input");
     const matriz = Array.from({ length: n }, () => Array(n).fill(0));
@@ -312,8 +318,8 @@ function criarGrafoAPartirDaMatriz(container, n) {
     }
 }
 
-// Função para atualizar a exibição da matriz
-// Gera uma tabela de matriz de adjacência (somente leitura) que reflete o estado atual do grafo exibido na tela.
+// ATUALIZAR_MATRIZ
+// Gera e exibe a matriz de adjacência correspondente ao estado atual do grafo na tela.
 function atualizarMatriz() {
     const matrizDiv = document.getElementById("matrizOutputContainer");
     if (!matrizDiv) return;
@@ -355,8 +361,8 @@ function atualizarMatriz() {
     matrizDiv.appendChild(table);
 }
 
-// Função para baixar a matriz em formato .txt
-// Constrói uma representação em texto da matriz de adjacência atual e a oferece para download como um arquivo .txt.
+// BAIXAR_MATRIZ_TXT
+// Converte a matriz de adjacência atual em uma string formatada e inicia o download de um arquivo .txt.
 function baixarMatrizTxt() {
     const currentNodes = nodes.get({ fields: ['id', 'label'] });
     currentNodes.sort((a, b) => a.id - b.id);
@@ -368,13 +374,11 @@ function baixarMatrizTxt() {
 
     let content = "";
 
-    // Cria a linha de cabeçalho com os rótulos dos nós
     const headers = currentNodes.map(node => node.label);
     content += "\t" + headers.join("\t") + "\n";
 
-    // Cria cada linha da matriz
     currentNodes.forEach(fromNode => {
-        let rowContent = fromNode.label; // Inicia a linha com o rótulo do nó
+        let rowContent = fromNode.label;
         currentNodes.forEach(toNode => {
             const edge = edges.get({
                 filter: (e) => e.from === fromNode.id && e.to === toNode.id,
@@ -385,21 +389,19 @@ function baixarMatrizTxt() {
         content += rowContent + "\n";
     });
 
-    // Cria um Blob com o conteúdo e inicia o download
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = 'matriz_adjacencia.txt';
 
-    // Adiciona ao corpo, clica e remove para garantir compatibilidade
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(link.href); // Libera a memória
+    URL.revokeObjectURL(link.href);
 }
 
-// Função para atualizar as estatísticas do grafo
-// Calcula e exibe as informações de rotas (possíveis, mais curta e mais longa) para cada nó do grafo.
+// ATUALIZAR_ESTATISTICAS
+// Calcula e exibe as estatísticas do grafo, como rotas possíveis, rota mais curta e mais longa a partir de cada nó.
 function atualizarEstatisticas() {
     const divPossiveis = document.getElementById("rotas-possiveis");
     const divCurta = document.getElementById("rota-curta");
@@ -417,9 +419,9 @@ function atualizarEstatisticas() {
     ids.sort((a, b) => a - b);
 
     if (ids.length === 0) {
-        divPossiveis.innerHTML = "<p>Nenhum nó no grafo.</p>";
-        divCurta.innerHTML = "<p>Nenhum nó no grafo.</p>";
-        divLonga.innerHTML = "<p>Nenhum nó no grafo.</p>";
+        divPossiveis.innerHTML = "<p>Nenhum nó no grafo para calcular rotas.</p>";
+        divCurta.innerHTML = "<p>Nenhum nó no grafo para calcular rotas.</p>";
+        divLonga.innerHTML = "<p>Nenhum nó no grafo para calcular rotas.</p>";
         return;
     }
 
@@ -432,8 +434,8 @@ function atualizarEstatisticas() {
     });
 }
 
-// Função para calcular as rotas a partir de uma origem
-// Implementa o algoritmo de Dijkstra para encontrar os caminhos mais curtos de um nó de origem para todos os outros nós alcançáveis.
+// CALCULAR_ROTAS
+// Implementa o algoritmo de Dijkstra para encontrar os caminhos mais curtos de um nó de origem para todos os outros nós no grafo.
 function calcularRotas(origemId) {
     const distancias = {};
     const predecessores = {};
@@ -455,7 +457,7 @@ function calcularRotas(origemId) {
 
         const conexoes = edges.get({
             filter: (edge) => {
-                return (edge.from === atual.id); // Considerando apenas arestas direcionadas
+                return (edge.from === atual.id);
             }
         });
 
@@ -467,7 +469,6 @@ function calcularRotas(origemId) {
             if (novaDist < distancias[vizinhoId]) {
                 distancias[vizinhoId] = novaDist;
                 predecessores[vizinhoId] = atual.id;
-                // Adiciona ou atualiza o nó na fila de prioridade
                 if (pq.get(vizinhoId)) {
                     pq.update({ id: vizinhoId, dist: novaDist });
                 } else {

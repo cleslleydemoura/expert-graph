@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 // === GLOBAIS ===
 let vis = window.vis;
 let nodes = new vis.DataSet([]);

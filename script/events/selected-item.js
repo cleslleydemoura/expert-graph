@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 document.addEventListener('DOMContentLoaded', () => {
   const menuItems = document.querySelectorAll('.menu-item');
 

@@ -12,7 +12,11 @@ export default defineConfig([
     files: ["**/*.js"],
     languageOptions: {
       sourceType: "module",
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        vis: "readonly",
+        ferramentaSelecionada: "writable",
+      },
     },
   },
   {

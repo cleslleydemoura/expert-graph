@@ -30,7 +30,7 @@ window.addEventListener("DOMContentLoaded", () => {
         interaction: {
             dragNodes: true,
             multiselect: false,
-            zoomView: false,
+            zoomView: true,
         },
         physics: { enabled: false, stabilization: true },
     };
@@ -66,10 +66,15 @@ window.addEventListener("DOMContentLoaded", () => {
     if (btnBaixarMatriz) {
         btnBaixarMatriz.onclick = baixarMatrizTxt;
     }
+    
+    // *** NOVO: Adiciona evento de clique para o botão de cálculo de rotas ***
+    const btnCalcularRotas = document.getElementById("calculate-routes-btn");
+    if (btnCalcularRotas) {
+        btnCalcularRotas.onclick = atualizarEstatisticas;
+    }
 
     configurarEventosDoGrafo();
     criarInterfaceDeMatriz();
-    atualizarEstatisticas();
 });
 
 // HANDLE_EDIT_CONFIRM
@@ -105,7 +110,7 @@ function handleEditConfirm() {
     }
 
     // Atualiza o grafo e limpa o estado de edição
-    atualizarEstatisticas();
+    limparResultadosDeRota();
     document.getElementById("editModal").style.display = "none";
     network.unselectAll();
     itemBeingEdited = null;
@@ -131,20 +136,28 @@ function configurarEventosDoGrafo() {
         }
 
         // Lógica das ferramentas
+        let graphChanged = false;
         if (ferramentaSelecionada === "Vértice" && pointer) {
             nodes.add({ id: proximoNoId, label: `V${proximoNoId}`, x: pointer.canvas.x, y: pointer.canvas.y, shape: "dot", size: 25, color: { background: "#6e7d7e", border: "#333" }, font: { color: "#333", face: "Work Sans", size: 16 } });
             proximoNoId++;
+            graphChanged = true;
         } else if (ferramentaSelecionada === "Excluir Nó" && clickedNodes.length > 0) {
             nodes.remove(clickedNodes[0]);
+            graphChanged = true;
         } else if (ferramentaSelecionada === "Excluir Aresta" && clickedEdges.length > 0) {
             edges.remove(clickedEdges[0]);
+            graphChanged = true;
         } else if (ferramentaSelecionada === "Limpar Grafo") {
             nodes.clear(); edges.clear(); proximoNoId = 0;
             const clearGraphMenuItem = document.querySelector('.menu-item .tooltip[data-tooltip="Limpar Grafo"]');
             if (clearGraphMenuItem) clearGraphMenuItem.parentElement.classList.remove('selected');
             ferramentaSelecionada = null;
+            graphChanged = true;
         }
-        atualizarEstatisticas();
+        
+        if (graphChanged) {
+            limparResultadosDeRota();
+        }
     });
 
     network.on("selectNode", (params) => {
@@ -236,11 +249,11 @@ function criarInterfaceDeMatriz() {
             return;
         }
         criarGrafoAPartirDaMatriz(matrizInputDiv, qtd);
-        atualizarEstatisticas();
+        limparResultadosDeRota();
     };
     btnMostrarMatriz.onclick = () => {
         atualizarMatriz();
-        atualizarEstatisticas();
+        limparResultadosDeRota();
     };
 }
 
@@ -399,104 +412,126 @@ function baixarMatrizTxt() {
     URL.revokeObjectURL(link.href);
 }
 
-// ATUALIZAR_ESTATISTICAS
-// Calcula e exibe as estatísticas do grafo, como rotas possíveis, rota mais curta e mais longa a partir de cada nó.
-function atualizarEstatisticas() {
-    const divPossiveis = document.getElementById("rotas-possiveis");
-    const divCurta = document.getElementById("rota-curta");
-    const divLonga = document.getElementById("rota-longa");
+// === LÓGICA DE ROTAS (NOVO) ===
 
-    if (!divPossiveis || !divCurta || !divLonga) {
-        return;
+/**
+ * *** NOVO: Limpa a área de resultados de rota. ***
+ * Chamado sempre que o grafo é modificado para evitar exibir dados desatualizados.
+ */
+function limparResultadosDeRota() {
+    const resultsDiv = document.getElementById("route-results");
+    if(resultsDiv) {
+        resultsDiv.innerHTML = "<p>O grafo foi modificado. Faça uma nova busca.</p>";
     }
-
-    divPossiveis.innerHTML = "";
-    divCurta.innerHTML = "";
-    divLonga.innerHTML = "";
-
-    const ids = nodes.getIds();
-    ids.sort((a, b) => a - b);
-
-    if (ids.length === 0) {
-        divPossiveis.innerHTML = "<p>Nenhum nó no grafo para calcular rotas.</p>";
-        divCurta.innerHTML = "<p>Nenhum nó no grafo para calcular rotas.</p>";
-        divLonga.innerHTML = "<p>Nenhum nó no grafo para calcular rotas.</p>";
-        return;
-    }
-
-    ids.forEach((fromId) => {
-        const resultado = calcularRotas(fromId);
-        const fromNodeLabel = nodes.get(fromId) ? nodes.get(fromId).label : `V${fromId}`;
-        divPossiveis.innerHTML += `<p><strong>${fromNodeLabel}:</strong> ${resultado.possiveis.join(", ") || "-"}</p>`;
-        divCurta.innerHTML += `<p><strong>${fromNodeLabel}:</strong> ${resultado.curta}</p>`;
-        divLonga.innerHTML += `<p><strong>${fromNodeLabel}:</strong> ${resultado.longa}</p>`;
-    });
 }
 
-// CALCULAR_ROTAS
-// Implementa o algoritmo de Dijkstra para encontrar os caminhos mais curtos de um nó de origem para todos os outros nós no grafo.
-function calcularRotas(origemId) {
-    const distancias = {};
-    const predecessores = {};
-    const pq = new vis.DataSet([{ id: origemId, dist: 0 }]);
+/**
+ * *** NOVO: Encontra todos os caminhos simples (sem ciclos) entre um nó de início e um de fim. ***
+ * @param {number} inicioId - O ID do nó de partida.
+ * @param {number} fimId - O ID do nó de destino.
+ * @returns {Array<Object>} Uma lista de objetos, onde cada objeto representa um caminho encontrado
+ * com sua rota (Array de labels) e custo total.
+ */
+function encontrarTodosOsCaminhos(inicioId, fimId) {
+    const todosOsCaminhos = [];
 
-    const todosIds = nodes.getIds();
-    todosIds.forEach(id => {
-        distancias[id] = Infinity;
-        predecessores[id] = null;
-    });
-    distancias[origemId] = 0;
+    // Função recursiva de busca em profundidade (DFS)
+    function dfs(noAtualId, caminhoAtual, custoAtual) {
+        // Adiciona o nó atual ao caminho
+        const noAtual = nodes.get(noAtualId);
+        caminhoAtual.push(noAtual.label);
 
-    while (pq.length > 0) {
-        const allItems = pq.get({ order: 'dist' });
-        const atual = allItems[0];
-        pq.remove(atual.id);
-
-        if (atual.dist === Infinity) break;
-
-        const conexoes = edges.get({
-            filter: (edge) => {
-                return (edge.from === atual.id);
-            }
-        });
-
-        conexoes.forEach((edge) => {
-            const vizinhoId = edge.to;
-            const pesoAresta = parseFloat(edge.label || "1");
-            const novaDist = distancias[atual.id] + pesoAresta;
-
-            if (novaDist < distancias[vizinhoId]) {
-                distancias[vizinhoId] = novaDist;
-                predecessores[vizinhoId] = atual.id;
-                if (pq.get(vizinhoId)) {
-                    pq.update({ id: vizinhoId, dist: novaDist });
-                } else {
-                    pq.add({ id: vizinhoId, dist: novaDist });
-                }
-            }
-        });
-    }
-
-    const destinosPossiveis = Object.keys(distancias)
-        .filter(id => parseInt(id) !== origemId && distancias[id] !== Infinity)
-        .map(id => nodes.get(parseInt(id)).label);
-
-    let realMinDist = Infinity;
-    let realMaxDist = 0;
-    let hasReachableNode = false;
-
-    for (const nodeId in distancias) {
-        if (parseInt(nodeId) !== origemId && distancias[nodeId] !== Infinity) {
-            const dist = distancias[nodeId];
-            realMinDist = Math.min(realMinDist, dist);
-            realMaxDist = Math.max(realMaxDist, dist);
-            hasReachableNode = true;
+        // Caso base: Chegou ao destino
+        if (noAtualId === fimId) {
+            todosOsCaminhos.push({ path: [...caminhoAtual], cost: custoAtual });
+            caminhoAtual.pop(); // Backtrack para encontrar outros caminhos
+            return;
         }
+
+        // Passo recursivo: Explora os vizinhos
+        const conexoes = edges.get({ filter: edge => edge.from === noAtualId });
+
+        conexoes.forEach(edge => {
+            const vizinhoId = edge.to;
+            const vizinhoLabel = nodes.get(vizinhoId).label;
+            
+            // Evita ciclos: não visita um nó que já está no caminho atual
+            if (!caminhoAtual.includes(vizinhoLabel)) {
+                const pesoAresta = parseFloat(edge.label || "1");
+                dfs(vizinhoId, caminhoAtual, custoAtual + pesoAresta);
+            }
+        });
+
+        // Backtrack: remove o nó atual do caminho para explorar outras ramificações
+        caminhoAtual.pop();
     }
 
-    return {
-        possiveis: destinosPossiveis.sort(),
-        curta: hasReachableNode ? realMinDist : "-",
-        longa: hasReachableNode ? realMaxDist : "-",
+    dfs(inicioId, [], 0);
+    return todosOsCaminhos;
+}
+
+/**
+ * *** ATUALIZADO: Lê os inputs, calcula e exibe as rotas entre os dois vértices selecionados. ***
+ * Esta função é chamada pelo botão "Calcular Rotas".
+ */
+function atualizarEstatisticas() {
+    const startInput = document.getElementById("start-vertex");
+    const endInput = document.getElementById("end-vertex");
+    const resultsDiv = document.getElementById("route-results");
+
+    resultsDiv.innerHTML = ""; // Limpa resultados anteriores
+
+    const startLabel = startInput.value.trim();
+    const endLabel = endInput.value.trim();
+
+    if (!startLabel || !endLabel) {
+        resultsDiv.innerHTML = "<p>Por favor, informe o vértice de partida e de chegada.</p>";
+        return;
+    }
+
+    // Função auxiliar para obter o ID do nó pelo seu rótulo
+    const getNodeIdByLabel = (label) => {
+        const foundNode = nodes.get({ filter: node => node.label.toLowerCase() === label.toLowerCase() });
+        return foundNode.length > 0 ? foundNode[0].id : null;
     };
+
+    const startId = getNodeIdByLabel(startLabel);
+    const endId = getNodeIdByLabel(endLabel);
+
+    if (startId === null) {
+        resultsDiv.innerHTML = `<p>Vértice de partida "${startLabel}" não encontrado. Verifique o rótulo.</p>`;
+        return;
+    }
+    if (endId === null) {
+        resultsDiv.innerHTML = `<p>Vértice de chegada "${endLabel}" não encontrado. Verifique o rótulo.</p>`;
+        return;
+    }
+    
+    if (startId === endId) {
+        resultsDiv.innerHTML = `<p>O vértice de partida e chegada devem ser diferentes.</p>`;
+        return;
+    }
+
+    const todosOsCaminhos = encontrarTodosOsCaminhos(startId, endId);
+
+    if (todosOsCaminhos.length === 0) {
+        resultsDiv.innerHTML = `<p>Nenhuma rota encontrada de <strong>${startLabel}</strong> para <strong>${endLabel}</strong>.</p>`;
+        return;
+    }
+
+    // Ordena os caminhos pelo custo para encontrar o menor e o maior
+    todosOsCaminhos.sort((a, b) => a.cost - b.cost);
+    const menorRota = todosOsCaminhos[0];
+    const maiorRota = todosOsCaminhos[todosOsCaminhos.length - 1];
+
+    let htmlResult = `<h3>Resultados de ${startLabel} para ${endLabel}:</h3>`;
+    htmlResult += `<p><strong>Menor Rota:</strong> ${menorRota.path.join(" → ")} (Custo: ${menorRota.cost})</p>`;
+    htmlResult += `<p><strong>Maior Rota:</strong> ${maiorRota.path.join(" → ")} (Custo: ${maiorRota.cost})</p>`;
+    htmlResult += `<hr><p><strong>${todosOsCaminhos.length} Rota(s) Possível(is):</strong></p>`;
+    
+    todosOsCaminhos.forEach(caminho => {
+        htmlResult += `<p>${caminho.path.join(" → ")} (Custo: ${caminho.cost})</p>`;
+    });
+
+    resultsDiv.innerHTML = htmlResult;
 }

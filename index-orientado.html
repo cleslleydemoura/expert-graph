@@ -45,14 +45,20 @@
       <div class="graph-container">
         <div class="grafo" id="mynetwork"></div>
         <div class="stats" id="stats">
-          <p>ROTAS POSSÍVEIS:</p>
-          <div id="rotas-possiveis"></div>
-
-          <p>ROTAS MAIS CURTAS:</p>
-          <div id="rota-curta"></div>
-
-          <p>ROTAS MAIS LONGAS:</p>
-          <div id="rota-longa"></div>
+          <p><strong>BUSCAR ROTAS ENTRE VÉRTICES</strong></p>
+          <div class="route-finder">
+            <div class="input-group">
+              <label for="start-vertex">Vértice Início:</label>
+              <input type="text" id="start-vertex" placeholder="Ex: A">
+            </div>
+            <div class="input-group">
+              <label for="end-vertex">Vértice Final:</label>
+              <input type="text" id="end-vertex" placeholder="Ex: B">
+            </div>
+            <button id="calculate-routes-btn">Calcular Rotas</button>
+          </div>
+          <div id="route-results">
+            </div>
         </div>
       </div>
       <div class="txt-converter-div">

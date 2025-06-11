@@ -1,4 +1,4 @@
-<h1>📈 Graph Drawing and Analysis Software</h1>
+# 📈 Software de Desenho e Análise de Grafos
 
 <div align="center">
   <a href="#">
@@ -6,43 +6,44 @@
   </a>
 </div>
 
-<p>🧑‍🏫 This software was developed to be used in classes, assisting in the understanding of graph concepts. Through it, students will be able to draw graphs, generate the adjacency matrix, and analyze different routes, facilitating the visualization and understanding of the associated structures and algorithms.</p>
-<p><a href="https://make-your-graph.vercel.app/">Web Version</a></p>
+<p>🧑‍🏫 Este software foi desenvolvido para ser utilizado em aulas, auxiliando no entendimento de conceitos de grafos. Através dele, os alunos podem desenhar grafos, gerar a matriz de adjacência e analisar diferentes rotas, facilitando a visualização e a compreensão das estruturas e algoritmos associados.</p>
+<p> Este projeto foi desenvolvido utilizando o <i>Electron.js</i> para gerar a aplicação e o <i>Vis.js</i> para a geração dos grafos.</p>
+<p><a href="https://make-your-graph.vercel.app/">Versão Web</a></p>
 
-<h2>Features</h2>
+## Funcionalidades
 <ul>
-  <p><b>✍️📈Interactive Graph Drawing App</b></p>
-  <li>Click on the screen to create points representing nodes.</li>
-  <li>Input information for each node, edge, and their respective labels.</li>
-  <li>Automatically generate the adjacency matrix from the constructed graph.</li>
+  <p><b>✍️📈 Desenho Interativo de Grafos</b></p>
+  <li>Clique na tela para criar pontos que representam os vértices.</li>
+  <li>Insira informações para cada vértice, aresta e seus respectivos rótulos.</li>
+  <li>Gere automaticamente a matriz de adjacência a partir do grafo construído.</li>
 </ul>
 
 <ul>
-  <p><b>🖥️📈 Graph Generation from an Adjacency Matrix</b></p>
-  <li>Provide the coordinates of the adjacency matrix.</li>
-  <li>The software will draw the corresponding graph, displaying nodes, edges, and label values.</li>
+  <p><b>🖥️📈 Geração de Grafo a partir de uma Matriz de Adjacência</b></p>
+  <li>Forneça as coordenadas da matriz de adjacência.</li>
+  <li>O software desenhará o grafo correspondente, exibindo vértices, arestas e os valores dos rótulos.</li>
 </ul>
 
 <ul>
-  <p><b>🛣️📈 Route Analysis</b></p>
-  <li>Specify an origin and destination point.</li>
+  <p><b>🛣️📈 Análise de Rotas</b></p>
+  <li>Especifique um ponto de origem e destino.</li>
   <li>
-    <b>The program will provide:</b>
+    <b>O programa fornecerá:</b>
     <ul>
-      <li>All possible routes between the points.</li>
-      <li>The shortest route.</li>
-      <li>The longest route.</li>
+      <li>Todas as rotas possíveis entre os pontos.</li>
+      <li>A rota mais curta.</li>
+      <li>A rota mais longa.</li>
     </ul>
   </li>
 </ul>
 
-<h1>👨‍💻 TECHNICAL REQUIREMENTS </h1>
-<p>Required applications:</p>
+# 👨‍💻 REQUISITOS TÉCNICOS
+<p>Aplicações necessárias:</p>
 <ul>
   <li>🟢 Node.js</li>
 </ul>
-<h3>💻 How to install and run the project locally? </h3>
+### 💻 Como instalar e rodar o projeto localmente?
 
-  <b>1.</b> Install <b>Node.js</b> and use the command <code>node -v</code> in the terminal to check if it’s installed and up to date; <br><br>
-  <b>2.</b> Run the command <b>npm install</b> to install the project dependencies; <br><br>
-  <b>3.</b> Finally, run <b>npm run start</b> to start the project and run it on your local machine.
+  <b>1.</b> Instale o <b>Node.js</b> e use o comando <code>node -v</code> no terminal para verificar se ele está instalado e atualizado; <br><br>
+  <b>2.</b> Execute o comando <b>npm install</b> para instalar as dependências do projeto; <br><br>
+  <b>3.</b> Por fim, execute <b>npm run start</b> para iniciar o projeto e rodá-lo na sua máquina local.

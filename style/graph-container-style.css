@@ -204,8 +204,10 @@
 .txt-converter-div {
   display: flex;
   justify-content: center;
-  width: 15%;
+  width: auto; /* Alterado para se ajustar ao conteúdo */
+  min-width: 15%; /* Mantém uma largura mínima */
   box-sizing: border-box;
+  gap: 15px; /* <-- ADICIONE ESTA LINHA */
 }
 
 .txt-converter-div button {

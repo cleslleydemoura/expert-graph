@@ -509,7 +509,7 @@ function baixarMatrizTxt() {
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'analise_grafo.txt';
+    link.download = 'matriz.txt';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

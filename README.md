@@ -1,4 +1,4 @@
-# 📈 ExpGraph - Expert Graph
+# 📈 EGraph - Expert Graph
 
 <div align="center">
   <a href="#">

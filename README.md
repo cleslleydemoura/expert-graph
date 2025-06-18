@@ -50,5 +50,10 @@
 # 💻 Como instalar e rodar o projeto localmente?
 
   <b>1.</b> Instale o <b>Node.js</b> e use o comando <code>node -v</code> no terminal para verificar se ele está instalado e atualizado; <br><br>
-  <b>2.</b> Execute o comando <b>npm install</b> para instalar as dependências do projeto; <br><br>
-  <b>3.</b> Por fim, execute <b>npm run start</b> para iniciar o projeto e rodá-lo na sua máquina local.
+  <b>2.</b> Execute o comando <code>npm install</code> para instalar as dependências do projeto; <br><br>
+  <b>3.</b> Por fim, execute <code>npm run start</code> para iniciar o projeto e rodá-lo na sua máquina local.
+
+# 💻 Como gerar um executável deste programa?
+<p>
+  O projeto conta com o forge, que é capaz de criar um aplicativo executável através do comando <code>npm run make</code>
+</p>

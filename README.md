@@ -22,6 +22,8 @@
   <li>Gere automaticamente a matriz de adjacência a partir do grafo construído.</li>
 </ul>
 
+![image](https://github.com/user-attachments/assets/2b70fa5b-c30a-4066-b4ff-b47184626726)
+
 <ul>
   <p><b>🖥️📈 Geração de Grafo a partir de uma Matriz de Adjacência</b></p>
   <li>Forneça as coordenadas da matriz de adjacência.</li>
@@ -39,6 +41,12 @@
       <li>A rota mais longa.</li>
     </ul>
   </li>
+</ul>
+
+<ul>
+  <p><b>📁 Exportação e Importação de arquivos</b></p>
+  <li>Download da Matriz de Adjacência, Posição X e Y dos vértices, valores de arestas e rotas da Matriz criados pelo usuário em formato .txt.</li>
+  <li>O mesmo arquivo de download pode ser lido pelo programa e gerar um grafo com as exatas informações disponíveis no arquivo.</li>
 </ul>
 
 # 👨‍💻 REQUISITOS TÉCNICOS

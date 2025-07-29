@@ -1,0 +1,51 @@
+name: "Notificar no Discord - Back-End"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verificar se o webhook está setado
+        run: |
+          if [ -z "${{ secrets.DISCORD_WEBHOOK }}" ]; then
+            echo "⚠️ DISCORD_WEBHOOK está vazio"
+            exit 1
+          else
+            echo "✅ DISCORD_WEBHOOK está configurado"
+          fi
+
+      - name: Enviar notificação para o Discord (Back-End)
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          COMMIT_URL: "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+          COMPARE_URL: "${{ github.event.compare }}"
+          COMMIT_MSG: "${{ github.event.head_commit.message }}"
+          COMMIT_AUTHOR: "${{ github.actor }}"
+          COMMIT_BRANCH: "${{ github.ref_name }}"
+          REPO_NAME: "${{ github.repository }}"
+          COMMIT_SHA: "${{ github.sha }}"
+        run: |
+          SHORT_SHA=${COMMIT_SHA:0:7}
+          DATA_HORA=$(TZ=America/Sao_Paulo date "+%d/%m/%Y, %H:%M")
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{
+              \"embeds\": [{
+                \"author\": {
+                  \"name\": \"${COMMIT_AUTHOR}\"
+                },
+                \"description\": \"**${COMMIT_AUTHOR}** pushed to branch **${COMMIT_BRANCH}** of **${REPO_NAME}** [${SHORT_SHA}](${COMMIT_URL})\",
+                \"color\": 15158332,
+                \"footer\": {
+                  \"text\": \"${DATA_HORA}\"
+                }
+              }]
+            }" \
+            "$DISCORD_WEBHOOK"
